@@ -1,6 +1,6 @@
 ---
 title: "Stuck in the 90s, Serving Billions: The Text Input Time Warp"
-date: 2024-03-15
+date: 2024-03-16
 draft: false
 ShowToc: true
 ---
