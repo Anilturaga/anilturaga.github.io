@@ -1,7 +1,7 @@
 ---
 title: "Stuck in the 90s, Serving Billions: The Text Input Time Warp"
 date: 2024-03-15
-draft: true
+draft: false
 ShowToc: true
 ---
 
@@ -24,4 +24,4 @@ After 20+ years, we are still using the good old text input to try to express ou
 More often than not, we are forced to tailer our question to the machine with assumptions about how the machine interprets our question.
 
 
-![Image alt](/Custom-tool-screenshot.png)
+![Image alt](/images/Custom-tool-screenshot.png)
