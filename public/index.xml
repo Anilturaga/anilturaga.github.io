@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Anil Turaga&#39;s Blog</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content on Anil Turaga&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 15 Mar 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Stuck in the 90s, Serving Billions: The Text Input Time Warp</title>
+      <link>http://localhost:1313/posts/search_ui/</link>
+      <pubDate>Fri, 15 Mar 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/search_ui/</guid>
+      <description>The lifecycle of search has 2 components
+User asks a question The machine answers There has been quite a bit of evolution of how the machine answers our questions.
+Keyword based results Results based on the semantic understanding of the question Knowledge graph to bypass website links and directly provide answer Generative AI that will answer the questions directly However, little to no evolution happened on the first component where a user asks for something.</description>
+    </item>
+  </channel>
+</rss>

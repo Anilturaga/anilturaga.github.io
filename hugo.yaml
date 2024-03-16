@@ -1,0 +1,35 @@
+baseURL: https://anilturaga.github.io/
+languageCode: en-us
+title: Anil Turaga's Blog
+theme: PaperMod
+params:
+  defaultTheme: dark
+  homeInfoParams:
+    Title: "About me"
+    Content: 
+      I have worked in AI/ML, big data engineering, frontend and backend over the past several years.
+      
+      
+      Read about my opinions and personal projects here. 
+
+
+      Most if not all the code mentioned in the blogs is open-sourced.
+  socialIcons:
+    - name: github
+      url: 'https://github.com/Anilturaga'
+  assets:
+    favicon16x16: /assets/favicon-16x16.png
+    favicon32x32: /assets/favicon-32x32.png
+    apple_touch_icon: /assets/apple-touch-icon.png
+    favicon: favicon.ico
+
+menu:
+  main:
+  - identifier: home
+    name: Home
+    url: /
+    weight: 10
+  - identifier: posts
+    name: Blog
+    url: /posts/
+    weight: 20
