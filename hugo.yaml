@@ -7,13 +7,11 @@ params:
   homeInfoParams:
     Title: "About me"
     Content: 
-      I have worked in AI/ML, big data engineering, frontend and backend over the past several years.
-      
+      I have worked in AI/ML, Data Engineering, Frontend and Backend over the past several years.
       
       Read about my opinions and personal projects here. 
 
 
-      Most if not all the code mentioned in the blogs is open-sourced.
   socialIcons:
     - name: github
       url: 'https://github.com/Anilturaga'

@@ -5,11 +5,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>Stuck in the 90s, Serving Billions: The Text Input Time Warp | Anil Turaga&#39;s Blog</title>
+<title>Stuck in the 90s, Still Serving Billions | Anil Turaga&#39;s Blog</title>
 <meta name="keywords" content="">
-<meta name="description" content="The lifecycle of search has 2 components
-User asks a question The machine answers There has been quite a bit of evolution of how the machine answers our questions.
-Keyword based results Results based on the semantic understanding of the question Knowledge graph to bypass website links and directly provide answer Generative AI that will answer the questions directly However, little to no evolution happened on the first component where a user asks for something.">
+<meta name="description" content="Context Nearly 35 years has passed from the advent of search engines.
+Google search experience has been relatively stable for a long time barring changes in speed and quality of the results.
+With Generative AI blowing up, search offerings have broadly bifurcated into two types: Problem Let&rsquo;s break down how search is used by the masses.
+Short impromptu queries such as what is the biggest sea mammal Long research sessions such as designing a lesson plan or coding a feature using a new library I believe all search offerings handle the first use case perfectly.">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/posts/search_ui/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.b609c58d5c11bb90b1a54e04005d74ad1ddf22165eb79f5533967e57df9c3b50.css" integrity="sha256-tgnFjVwRu5CxpU4EAF10rR3fIhZet59VM5Z&#43;V9&#43;cO1A=" rel="preload stylesheet" as="style">
@@ -87,30 +88,84 @@ Keyword based results Results based on the semantic understanding of the questio
   <header class="post-header">
     
     <h1 class="post-title entry-hint-parent">
-      Stuck in the 90s, Serving Billions: The Text Input Time Warp
+      Stuck in the 90s, Still Serving Billions
     </h1>
-    <div class="post-meta"><span title='2024-03-16 00:00:00 +0000 UTC'>March 16, 2024</span>
+    <div class="post-meta"><span title='2024-06-05 00:00:00 +0000 UTC'>June 5, 2024</span>
 
 </div>
-  </header> 
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
 
-  <div class="post-content"><p>The lifecycle of search has 2 components</p>
-<ol>
-<li>User asks a question</li>
-<li>The machine answers</li>
-</ol>
-<p>There has been quite a bit of evolution of how the machine answers our questions.</p>
-<ol>
-<li>Keyword based results</li>
-<li>Results based on the semantic understanding of the question</li>
-<li>Knowledge graph to bypass website links and directly provide answer</li>
-<li>Generative AI that will answer the questions directly</li>
-</ol>
-<p>However, little to no evolution happened on the first component where a user asks for something.</p>
-<p>After 20+ years, we are still using the good old text input to try to express our requirement.</p>
-<p>More often than not, we are forced to tailer our question to the machine with assumptions about how the machine interprets our question.</p>
-<p><img loading="lazy" src="/images/Custom-tool-screenshot.png" alt="Image alt"  />
+        <div class="inner"><ul>
+                <li>
+                    <a href="#context" aria-label="Context">Context</a></li>
+                <li>
+                    <a href="#problem" aria-label="Problem">Problem</a></li>
+                <li>
+                    <a href="#opportunity" aria-label="Opportunity">Opportunity</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h3 id="context">Context<a hidden class="anchor" aria-hidden="true" href="#context">#</a></h3>
+<p>Nearly 35 years has passed from the advent of search engines.</p>
+<p>Google search experience has been relatively stable for a <a href="https://www.youtube.com/watch?v=3KtWfp0UopM">long time</a> barring changes in speed and quality of the results.</p>
+<p>With Generative AI blowing up, search offerings have broadly bifurcated into two types:
+<img loading="lazy" src="/images/current_search.png" alt="alt text"  />
 </p>
+<h3 id="problem">Problem<a hidden class="anchor" aria-hidden="true" href="#problem">#</a></h3>
+<p>Let&rsquo;s break down how search is used by the masses.</p>
+<ol>
+<li>Short impromptu queries such as <code>what is the biggest sea mammal</code></li>
+<li>Long research sessions such as <code>designing a lesson plan</code> or <code>coding a feature using a new library</code></li>
+</ol>
+<p>I believe all search offerings handle the first use case perfectly. However, search experience is still limited to short one-off sessions with no continuity between searches.</p>
+<p>Search over longer sessions should evolve the results and recommended searches aligned with how the user is progressing through their task.
+Example:
+Task: <code>coding a feature using a new library</code></p>
+<table>
+<thead>
+<tr>
+<th>User journey</th>
+<th>Potential Search recommendations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What libraries are suitable for this feature</td>
+<td>Comparisons</td>
+</tr>
+<tr>
+<td>Library documentation</td>
+<td>Tutorial &amp; Guides</td>
+</tr>
+<tr>
+<td>Implementing the feature</td>
+<td>Github projects</td>
+</tr>
+<tr>
+<td>Bugs based on the library</td>
+<td>StackOverflow or GitHub Issues</td>
+</tr>
+<tr>
+<td>Deploying the feature</td>
+<td>Forums</td>
+</tr>
+<tr>
+<td>Documenting the use of a new library</td>
+<td>Writing tools</td>
+</tr>
+</tbody>
+</table>
+<h3 id="opportunity">Opportunity<a hidden class="anchor" aria-hidden="true" href="#opportunity">#</a></h3>
+<p>When Google&rsquo;s generative search was being announced, I expected the new service to handle longer sessions that understands the underlying goal I am working towards.</p>
+<p>I expected tighter, two-way integration with other Google services such as docs, sheets so that search is personolized not just for ads but for the task I am working on.</p>
+<p>I believe there is a good amount of untapped potential in improving the search experience.</p>
 
 
   </div>
