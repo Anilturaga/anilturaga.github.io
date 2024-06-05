@@ -9,8 +9,8 @@
 <meta name="keywords" content="">
 <meta name="description" content="Nearly 35 years has passed from the advent of search engines.
 Google search experience has been relatively stable for a long time barring changes in speed and quality of the results.
-With Generative AI blowing up, search offerings have broadly bifurcated into two types: Problem Let&rsquo;s break down how search is used by the masses.
-Short impromptu queries such as what is the biggest sea mammal Long research sessions such as designing a lesson plan or coding a feature using a new library All search offerings handle the first use case perfectly.">
+With Generative AI blowing up, search offerings have broadly bifurcated into two types:
+Wall of blue links Chat interface that reads sites and answers Personal preference: I would rather be presented with a list of curated excerpts from different sites based on my query.">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/posts/search_ux/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.b609c58d5c11bb90b1a54e04005d74ad1ddf22165eb79f5533967e57df9c3b50.css" integrity="sha256-tgnFjVwRu5CxpU4EAF10rR3fIhZet59VM5Z&#43;V9&#43;cO1A=" rel="preload stylesheet" as="style">
@@ -93,29 +93,20 @@ Short impromptu queries such as what is the biggest sea mammal Long research ses
     <div class="post-meta"><span title='2024-06-05 00:00:00 +0000 UTC'>June 5, 2024</span>
 
 </div>
-  </header> <div class="toc">
-    <details >
-        <summary accesskey="c" title="(Alt + C)">
-            <span class="details">Table of Contents</span>
-        </summary>
-
-        <div class="inner"><ul>
-                <li>
-                    <a href="#problem" aria-label="Problem">Problem</a></li>
-                <li>
-                    <a href="#opportunity" aria-label="Opportunity">Opportunity</a>
-                </li>
-            </ul>
-        </div>
-    </details>
-</div>
-
+  </header> 
   <div class="post-content"><!-- raw HTML omitted -->
 <p>Nearly 35 years has passed from the advent of search engines.</p>
 <p>Google search experience has been relatively stable for a <a href="https://www.youtube.com/watch?v=3KtWfp0UopM">long time</a> barring changes in speed and quality of the results.</p>
-<p>With Generative AI blowing up, search offerings have broadly bifurcated into two types:
-<img loading="lazy" src="/images/current_search.png" alt="alt text"  />
-</p>
+<p>With Generative AI blowing up, search offerings have broadly bifurcated into two types:</p>
+<ol>
+<li>Wall of blue links</li>
+<li>Chat interface that reads sites and answers
+<img loading="lazy" src="/images/current_search.png" alt="Image showing Google search and Perplexity AI results for the query &lt;code&gt;How to build a search engine&lt;/code&gt;"  />
+</li>
+</ol>
+<blockquote>
+<p>Personal preference: I would rather be presented with a list of curated excerpts from different sites based on my query. That way search engines can show ads between excerpts, the sites can get visitors other than the <a href="https://platform.openai.com/docs/gptbot">GPTBot</a> and I can get my answer from multiple sources without jumping between tabs.</p>
+</blockquote>
 <h3 id="problem">Problem<a hidden class="anchor" aria-hidden="true" href="#problem">#</a></h3>
 <p>Let&rsquo;s break down how search is used by the masses.</p>
 <ol>
@@ -123,9 +114,8 @@ Short impromptu queries such as what is the biggest sea mammal Long research ses
 <li>Long research sessions such as <code>designing a lesson plan</code> or <code>coding a feature using a new library</code></li>
 </ol>
 <p>All search offerings handle the first use case perfectly. However, search experience is still limited to short one-off sessions with no continuity between searches.</p>
-<p>Search over longer sessions should evolve the results and recommended searches aligned with how the user is progressing through their task.
-Example:
-Task: <code>coding a feature using a new library</code></p>
+<p>Search over longer sessions should evolve the results and recommended searches aligned with how the user is progressing through their task.</p>
+<p>Let&rsquo;s consider an example task: <code>coding a feature using a new library</code></p>
 <table>
 <thead>
 <tr>
@@ -164,6 +154,9 @@ Task: <code>coding a feature using a new library</code></p>
 <p>When Google&rsquo;s generative search was being announced, I expected the new service to handle longer sessions that understands the underlying goal I am working towards.</p>
 <p>I expected tighter, two-way integration with other Google services such as docs, sheets so that search is personolized not just for ads but for the task I am working on.</p>
 <p>I believe there is a good amount of untapped potential in improving the search experience.</p>
+<h3 id="implementation-challenges">Implementation Challenges<a hidden class="anchor" aria-hidden="true" href="#implementation-challenges">#</a></h3>
+<p>In addition to competing against an alleged monopoly, building a search index is technically complex and financially expensive endeavour.</p>
+<p>However, user journey&rsquo;s does not require building a new search index. We can simply rank, read, select relevant excerpts based on not just the user query but also considering the objective the user is working towards.</p>
 
 
   </div>
