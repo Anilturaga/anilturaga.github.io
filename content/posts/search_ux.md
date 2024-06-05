@@ -7,7 +7,7 @@ ShowToc: false
 <!-- ### Context -->
 Nearly 35 years has passed from the advent of search engines. 
 
-Google search experience has been relatively stagnant for a [long time](https://www.youtube.com/watch?v=3KtWfp0UopM) barring changes in speed of the results and the recent AI Overviews.
+Google search experience has been relatively stagnant for a [long time](https://www.youtube.com/watch?v=3KtWfp0UopM) barring the recent AI Overviews feature.
 
 Search offerings can be broadly bifurcated into two types:
 1. Wall of blue links
@@ -20,22 +20,14 @@ Moving on...
 ### Challenge
 Let's break down how search is used by the masses
 1. Short impromptu queries such as `what is the biggest sea mammal`
-2. Long research sessions such as `designing a lesson plan` or `coding a feature using a new library`
+2. Long research sessions for tasks like `designing a lesson plan` or `coding a feature using a new library`
 
 All search offerings handle the first use case perfectly. However, search experience is still limited to short one-off sessions with no continuity between searches.
 
-Search over longer sessions should evolve the results and recommended searches aligned with how the user is progressing through their task.
+Generally, you are handling multiple tasks(personal or professionally, one-off or recurrent) and you utilize search while going through the process of completing these tasks. Current search engine's neither captures nor respect these attributes about the user.
 
+From a high level view, one might think that a chatbot might solve this. However, using summarized answers might restrict the process of exploration and discovery. Not to mention the issue of goal drift where the LLM might forget the underlying objective and can hinder the progress of the user.
 
-Let's consider an example task: `coding a feature using a new library`
-| User journey  | Potential Search recommendations | 
-|---|---|
-| Choosing a library | Comparisons  |  
-| Library documentation  | Tutorial & Guides  |  
-| Implementing the feature  | Github projects  |  
-| Bugs based on the library | StackOverflow or GitHub Issues |
-| Deploying the feature | Forums |
-| Documenting the use of a new library | Writing tools |
 
 ### Opportunity
 When Google's generative search was being announced, I expected the new service to handle longer sessions that understands the underlying goal I am working towards.
@@ -44,9 +36,18 @@ I expected tighter, two-way integration with other Google services such as docs,
 
 I believe there is a good amount of untapped potential in improving the search experience.
 
+Let's consider an example task of how context aware search might look like: `coding a feature using a new library`
+| User journey  | Potential Search recommendations | 
+|---|---|
+| Choosing a library | Comparisons that are relevant to user's codebase |  
+| Library documentation  | Tutorial & Guides based on user's skillset |  
+| Implementing the feature  | Code templates or Quick starters |  
+| Bugs based on the library | StackOverflow or GitHub Issues that are contextually ranked |
+| Deploying the feature | Search and summarize on user's documents |
+| Documenting the feature | Writing tools |
 ### Implementation
 In addition to competing against an alleged monopoly, building a search index is technically complex and financially expensive endeavour.
 
-However, user journey's does not require building a new search index. It has much more to do with understanding the nuances of user's objectives, tracking the progress/evolution and providing appropriate recommendations and results.
+However, user journey's does not require building a new search index, not for the whole internet atleast. It has much more to do with understanding the nuances of user's objectives, indexing their personal sources on-device, tracking the progress/evolution of objectives and providing appropriate recommendations and results.
 
-A good amount of work is also required for integrating search over internet and user's private resources.
+Think of [Arc browser](https://arc.net/)'s spaces and link them with search.  You will have a search engine that knows on what you are working and where you are in that journey for multiple projects and can provide you with answers accordingly.

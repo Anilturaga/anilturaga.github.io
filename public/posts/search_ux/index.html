@@ -8,9 +8,9 @@
 <title>Search Engine&#39;s Blind Spot: Continuity and Context | Anil Turaga&#39;s Blog</title>
 <meta name="keywords" content="">
 <meta name="description" content="Nearly 35 years has passed from the advent of search engines.
-Google search experience has been relatively stagnant for a long time barring changes in speed of the results and the recent AI Overviews.
+Google search experience has been relatively stagnant for a long time barring the recent AI Overviews feature.
 Search offerings can be broadly bifurcated into two types:
-Wall of blue links Chat interface that reads sites for you Personal preference: I would rather be presented with a list of curated excerpts from different sites based on my query.">
+Wall of blue links Chat interface that reads sites for you Personal preference: I would rather be presented with a list of curated excerpts from different sites based on my query. AI can be used to select appropriate sections of each site and present them as is in a list of iframes.">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/posts/search_ux/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.b609c58d5c11bb90b1a54e04005d74ad1ddf22165eb79f5533967e57df9c3b50.css" integrity="sha256-tgnFjVwRu5CxpU4EAF10rR3fIhZet59VM5Z&#43;V9&#43;cO1A=" rel="preload stylesheet" as="style">
@@ -96,7 +96,7 @@ Wall of blue links Chat interface that reads sites for you Personal preference: 
   </header> 
   <div class="post-content"><!-- raw HTML omitted -->
 <p>Nearly 35 years has passed from the advent of search engines.</p>
-<p>Google search experience has been relatively stagnant for a <a href="https://www.youtube.com/watch?v=3KtWfp0UopM">long time</a> barring changes in speed of the results and the recent AI Overviews.</p>
+<p>Google search experience has been relatively stagnant for a <a href="https://www.youtube.com/watch?v=3KtWfp0UopM">long time</a> barring the recent AI Overviews feature.</p>
 <p>Search offerings can be broadly bifurcated into two types:</p>
 <ol>
 <li>Wall of blue links</li>
@@ -112,11 +112,16 @@ Wall of blue links Chat interface that reads sites for you Personal preference: 
 <p>Let&rsquo;s break down how search is used by the masses</p>
 <ol>
 <li>Short impromptu queries such as <code>what is the biggest sea mammal</code></li>
-<li>Long research sessions such as <code>designing a lesson plan</code> or <code>coding a feature using a new library</code></li>
+<li>Long research sessions for tasks like <code>designing a lesson plan</code> or <code>coding a feature using a new library</code></li>
 </ol>
 <p>All search offerings handle the first use case perfectly. However, search experience is still limited to short one-off sessions with no continuity between searches.</p>
-<p>Search over longer sessions should evolve the results and recommended searches aligned with how the user is progressing through their task.</p>
-<p>Let&rsquo;s consider an example task: <code>coding a feature using a new library</code></p>
+<p>Generally, you are handling multiple tasks(personal or professionally, one-off or recurrent) and you utilize search while going through the process of completing these tasks. Current search engine&rsquo;s neither captures nor respect these attributes about the user.</p>
+<p>From a high level view, one might think that a chatbot might solve this. However, using summarized answers might restrict the process of exploration and discovery. Not to mention the issue of goal drift where the LLM might forget the underlying objective and can hinder the progress of the user.</p>
+<h3 id="opportunity">Opportunity<a hidden class="anchor" aria-hidden="true" href="#opportunity">#</a></h3>
+<p>When Google&rsquo;s generative search was being announced, I expected the new service to handle longer sessions that understands the underlying goal I am working towards.</p>
+<p>I expected tighter, two-way integration with other Google services such as docs, sheets so that search is personolized not just for ads but for the task I am working on.</p>
+<p>I believe there is a good amount of untapped potential in improving the search experience.</p>
+<p>Let&rsquo;s consider an example task of how context aware search might look like: <code>coding a feature using a new library</code></p>
 <table>
 <thead>
 <tr>
@@ -127,38 +132,34 @@ Wall of blue links Chat interface that reads sites for you Personal preference: 
 <tbody>
 <tr>
 <td>Choosing a library</td>
-<td>Comparisons</td>
+<td>Comparisons that are relevant to user&rsquo;s codebase</td>
 </tr>
 <tr>
 <td>Library documentation</td>
-<td>Tutorial &amp; Guides</td>
+<td>Tutorial &amp; Guides based on user&rsquo;s skillset</td>
 </tr>
 <tr>
 <td>Implementing the feature</td>
-<td>Github projects</td>
+<td>Code templates or Quick starters</td>
 </tr>
 <tr>
 <td>Bugs based on the library</td>
-<td>StackOverflow or GitHub Issues</td>
+<td>StackOverflow or GitHub Issues that are contextually ranked</td>
 </tr>
 <tr>
 <td>Deploying the feature</td>
-<td>Forums</td>
+<td>Search and summarize on user&rsquo;s documents</td>
 </tr>
 <tr>
-<td>Documenting the use of a new library</td>
+<td>Documenting the feature</td>
 <td>Writing tools</td>
 </tr>
 </tbody>
 </table>
-<h3 id="opportunity">Opportunity<a hidden class="anchor" aria-hidden="true" href="#opportunity">#</a></h3>
-<p>When Google&rsquo;s generative search was being announced, I expected the new service to handle longer sessions that understands the underlying goal I am working towards.</p>
-<p>I expected tighter, two-way integration with other Google services such as docs, sheets so that search is personolized not just for ads but for the task I am working on.</p>
-<p>I believe there is a good amount of untapped potential in improving the search experience.</p>
 <h3 id="implementation">Implementation<a hidden class="anchor" aria-hidden="true" href="#implementation">#</a></h3>
 <p>In addition to competing against an alleged monopoly, building a search index is technically complex and financially expensive endeavour.</p>
-<p>However, user journey&rsquo;s does not require building a new search index. It has much more to do with understanding the nuances of user&rsquo;s objectives, tracking the progress/evolution and providing appropriate recommendations and results.</p>
-<p>A good amount of work is also required for integrating search over internet and user&rsquo;s private resources.</p>
+<p>However, user journey&rsquo;s does not require building a new search index, not for the whole internet atleast. It has much more to do with understanding the nuances of user&rsquo;s objectives, indexing their personal sources on-device, tracking the progress/evolution of objectives and providing appropriate recommendations and results.</p>
+<p>Think of <a href="https://arc.net/">Arc browser</a>&rsquo;s spaces and link them with search.  You will have a search engine that knows on what you are working and where you are in that journey for multiple projects and can provide you with answers accordingly.</p>
 
 
   </div>
