@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Posts on Anil Turaga&#39;s Blog</title>
-    <link>http://localhost:1313/posts/</link>
+    <link>https://anilturaga.github.io/posts/</link>
     <description>Recent content in Posts on Anil Turaga&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 05 Jun 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://anilturaga.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Search Engine&#39;s Blind Spot: Continuity and Context</title>
-      <link>http://localhost:1313/posts/search_ux/</link>
+      <link>https://anilturaga.github.io/posts/search_ux/</link>
       <pubDate>Wed, 05 Jun 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/search_ux/</guid>
+      <guid>https://anilturaga.github.io/posts/search_ux/</guid>
       <description>Nearly 35 years has passed from the advent of search engines.
-Google search experience has been relatively stagnant for a long time barring changes in speed of the results and the recent AI Overviews.
+Google search experience has been relatively stagnant for a long time barring the recent AI Overviews feature.
 Search offerings can be broadly bifurcated into two types:
-Wall of blue links Chat interface that reads sites for you Personal preference: I would rather be presented with a list of curated excerpts from different sites based on my query.</description>
+Wall of blue links Chat interface that reads sites for you Personal preference: I would rather be presented with a list of curated excerpts from different sites based on my query. AI can be used to select appropriate sections of each site and present them as is in a list of iframes.</description>
     </item>
   </channel>
 </rss>
