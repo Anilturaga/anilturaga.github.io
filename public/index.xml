@@ -2,21 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Anil Turaga&#39;s Blog</title>
-    <link>https://anilturaga.now.sh/</link>
+    <link>http://localhost:1313/</link>
     <description>Recent content on Anil Turaga&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 05 Jun 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://anilturaga.now.sh/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 07 Jun 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Search Engine&#39;s Blind Spot: Continuity and Context</title>
-      <link>https://anilturaga.now.sh/posts/search_ux/</link>
-      <pubDate>Wed, 05 Jun 2024 00:00:00 +0000</pubDate>
-      <guid>https://anilturaga.now.sh/posts/search_ux/</guid>
+      <title>Why search isn&#39;t a solved problem yet</title>
+      <link>http://localhost:1313/posts/search_ux/</link>
+      <pubDate>Fri, 07 Jun 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/search_ux/</guid>
       <description>Nearly 35 years has passed from the advent of search engines.
-Google search experience has been relatively stagnant for a long time barring the recent AI Overviews feature.
-Search offerings can be broadly bifurcated into two types:
-Wall of blue links Chat interface that reads sites for you Personal preference: I would rather be presented with a list of curated excerpts from different sites based on my query. AI can be used to select appropriate sections of each site and present them as is in a list of iframes.</description>
+With 90% of the market share, Google search&amp;rsquo;s user experience has been relatively stagnant for a long time barring the recent AI Overviews feature. Most of the alternatives till a couple of years ago were still mimicking Google search experience but with more privacy guarantees and better control over ranking.
+With the recent breakthrough in Generative AI and some new solutions gaining traction, Search offerings now can be broadly bifurcated into two types:</description>
     </item>
   </channel>
 </rss>
