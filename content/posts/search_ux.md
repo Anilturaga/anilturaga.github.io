@@ -1,5 +1,5 @@
 ---
-title: "Why search isn't a solved problem yet"
+title: "Why Search is not a solved problem yet"
 date: 2024-06-07
 draft: false
 ShowToc: false
