@@ -1,5 +1,5 @@
 ---
-title: "Why Search is not a solved problem yet"
+title: "Search Engine's Blindspot: Continuity and Context"
 date: 2024-06-07
 draft: false
 ShowToc: false
