@@ -792,7 +792,7 @@ Visualizing subtree for prefix: b'user'
 		candidate. By applying this validation process across all candidate tokens, we can effectively
 		filter out invalid completions while preserving the ones that maintain proper token boundaries.
 
-		<div class="mt-4 text-xl font-semibold">Example Results</div>
+		<div class="mt-4 text-xl font-semibold" id="results">Example Results</div>
 		<p class="mb-4">Let's see the algorithm in action with some of our test cases:</p>
 
 		<div class="border-base-300 mb-4 rounded-lg border p-4">
@@ -852,7 +852,7 @@ Pos 1:  -> [b'individual']... 1 possible tokens
         `}
 			</code>
 		</div>
-		<div class="mt-4 text-xl font-semibold">Performance Considerations</div>
+		<div class="mt-4 text-xl font-semibold" id="considerations">Performance Considerations</div>
 		<p class="mb-4">The implementation includes several optimizations:</p>
 
 		<ul class="mb-4 list-disc space-y-2 pl-6">
@@ -874,7 +874,7 @@ Pos 1:  -> [b'individual']... 1 possible tokens
 			</li>
 		</ul>
 
-		<div class="mt-4 text-xl font-semibold">Conclusion</div>
+		<div class="mt-4 text-xl font-semibold" id="conclusion">Conclusion</div>
 		<p class="mb-4">
 			I am sure there are many other ways to solve this problem. If you have alternative approaches,
 			optimizations, or spot any issues in my implementation, please feel free to open an issue or
