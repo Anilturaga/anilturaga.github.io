@@ -28,6 +28,40 @@
 	</p>
 	<div class="divider"></div>
 
+	<div class="collapse-arrow border-base-300 collapse mb-8 rounded-lg border">
+		<input type="checkbox" />
+		<div class="collapse-title text-xl font-semibold">Table of Contents</div>
+		<div class="collapse-content">
+			<ul class="space-y-2">
+				<li><a href="#tokenization" class="link">Tokenization</a></li>
+				<li><a href="#performance" class="link">Language Model Performance Considerations</a></li>
+				<li>
+					<a href="#dataset" class="link">Dataset Preparation</a>
+					<ul class="mt-2 space-y-2 pl-4">
+						<li><a href="#basic" class="link">Basic Word Completion</a></li>
+						<li><a href="#healing" class="link">Token Healing</a></li>
+						<li><a href="#multiple" class="link">Multiple Valid Completions</a></li>
+						<li><a href="#hidden" class="link">Hidden Subword Patterns</a></li>
+						<li><a href="#boundary" class="link">Token Boundary Misalignment</a></li>
+						<li><a href="#complex" class="link">Complex Tokenization Patterns</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="#implementation" class="link">Implementation</a>
+					<ul class="mt-2 space-y-2 pl-4">
+						<li><a href="#approach" class="link">High-Level Approach</a></li>
+						<li><a href="#trie" class="link">Trie Implementation</a></li>
+						<li><a href="#matching" class="link">Token Matching Algorithm</a></li>
+						<li><a href="#validation" class="link">Token Boundary Validation</a></li>
+						<li><a href="#results" class="link">Example Results</a></li>
+						<li><a href="#considerations" class="link">Performance Considerations</a></li>
+						<li><a href="#conclusion" class="link">Conclusion</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+
 	<div class="text-md">
 		I recently came across a problem published in cursor's blog named <a
 			href="https://cursor.com/blog/cpc"
@@ -84,7 +118,7 @@
 		<code class="border">The company hired an</code>.
 		<br />
 		<br />
-		<div class="text-2xl font-bold">Tokenization</div>
+		<div id="tokenization" class="text-2xl font-bold">Tokenization</div>
 		I am going to use the Byte-Pair Encoding (BPE) tokenization algorithm to solve this problem. Specifically
 		the cl100k_base used for GPT-4 tokenizer.
 		<br />
@@ -471,7 +505,9 @@
 			>
 		</div>
 
-		<div class="mt-8 text-2xl font-bold">Language Model Performance Considerations</div>
+		<div id="performance" class="mt-8 text-2xl font-bold">
+			Language Model Performance Considerations
+		</div>
 
 		When implementing CPC with self-hosted language models, there are two main approaches to
 		handling multiple completion candidates, with significant performance implications:
@@ -497,13 +533,13 @@
 			</p>
 		</div>
 
-		<div class="mt-8 text-2xl font-bold">Dataset preparation</div>
+		<div id="dataset" class="mt-8 text-2xl font-bold">Dataset preparation</div>
 		Most of the time spent on this problem went into preparing the dataset. I tried to think of and find
 		as many different cases as possible.
 		<br />
 		<br />
 		Here are some of the cases I considered, ordered by increasing complexity:
-		<div class="border-base-300 my-4 rounded-lg border p-4">
+		<div id="basic" class="border-base-300 my-4 rounded-lg border p-4">
 			<div class="mb-2 font-semibold">Basic word completion</div>
 			<p class="mb-4">
 				When the user types a word that already is a valid token but larger tokens are possible:
@@ -513,7 +549,7 @@
 			<TokenizerComponent tokens={['I', ' bought', ' some', ' apples']} />
 		</div>
 
-		<div class="border-base-300 my-4 rounded-lg border p-4">
+		<div id="healing" class="border-base-300 my-4 rounded-lg border p-4">
 			<div class="mb-2 font-semibold">Token Healing</div>
 			<p class="mb-4">
 				"Token Healing", which automatically backs up the generation process by one token before the
@@ -525,7 +561,7 @@
 			<TokenizerComponent tokens={['https', '://']} />
 		</div>
 
-		<div class="border-base-300 my-4 rounded-lg border p-4">
+		<div id="multiple" class="border-base-300 my-4 rounded-lg border p-4">
 			<div class="mb-2 font-semibold">Multiple valid completions</div>
 			<p class="mb-4">When the same prefix could lead to different valid words:</p>
 
@@ -538,7 +574,7 @@
 			<TokenizerComponent tokens={['user', 'Names']} />
 		</div>
 
-		<div class="border-base-300 my-4 rounded-lg border p-4">
+		<div id="hidden" class="border-base-300 my-4 rounded-lg border p-4">
 			<div class="mb-2 font-semibold">Hidden subword patterns</div>
 			<p class="mb-4">When the word itself is made up of multiple tokens:</p>
 			<code>We found a hidden causali<code class="text-base-content/50">ty</code></code>
@@ -546,7 +582,7 @@
 			<TokenizerComponent tokens={['We', ' found', ' a', ' hidden', ' caus', 'ality']} />
 		</div>
 
-		<div class="border-base-300 my-4 rounded-lg border p-4">
+		<div id="boundary" class="border-base-300 my-4 rounded-lg border p-4">
 			<div class="mb-2 font-semibold">Token boundary misalignment</div>
 			<p class="mb-4">When the cursor falls in the middle of what should be a single token:</p>
 			<code>He introduced an intermediar<code class="text-base-content/50">y</code></code>
@@ -554,7 +590,7 @@
 			<TokenizerComponent tokens={['He', ' introduced', ' an', ' intermediary']} />
 		</div>
 
-		<div class="border-base-300 my-4 rounded-lg border p-4">
+		<div id="complex" class="border-base-300 my-4 rounded-lg border p-4">
 			<div class="mb-2 font-semibold">Complex tokenization patterns</div>
 			<p class="mb-4">
 				When the partial word causes different tokenization patterns and the token boundary moves
@@ -593,11 +629,11 @@
 			</li>
 		</ul>
 
-		<div class="mt-8 text-2xl font-bold">Implementation</div>
+		<div id="implementation" class="mt-8 text-2xl font-bold">Implementation</div>
 
 		If you've been able to follow along so far, the solution would seem obvious.
 
-		<div class="mt-4 text-xl font-semibold">High-Level Approach</div>
+		<div id="approach" class="mt-4 text-xl font-semibold">High-Level Approach</div>
 		<p class="mb-4">The strategy involves four main steps:</p>
 		<ol class="mb-4 list-decimal space-y-2 pl-6">
 			<li>
@@ -613,7 +649,7 @@
 			<li>Return a list of possible completion paths for the model to consider</li>
 		</ol>
 
-		<div class="mt-4 text-xl font-semibold">Trie Implementation</div>
+		<div id="trie" class="mt-4 text-xl font-semibold">Trie Implementation</div>
 		At the core of our solution is a trie (prefix tree) data structure optimized for byte-level searching.
 
 		<br />
@@ -662,7 +698,7 @@ Visualizing subtree for prefix: b'user'
 
 		So given a prefix, we can traverse the trie and collect all the tokens that have the prefix.
 
-		<div class="mt-4 text-xl font-semibold">Token Matching Algorithm</div>
+		<div id="matching" class="mt-4 text-xl font-semibold">Token Matching Algorithm</div>
 		We first take the user's input and split it into words using the <a
 			href="https://github.com/openai/tiktoken/blob/4560a8896f5fb1d35c6f8fd6eee0399f9a1a27ca/tiktoken_ext/openai_public.py#L89"
 			class="link"
@@ -687,37 +723,37 @@ Visualizing subtree for prefix: b'user'
 			>
 		</div>
 
-		Now, we search the trie for each of these prefixes. For example, if we consider the prefix
-		" indivi", we would initiate search for the following prefixes:
+		Now, we search the trie for each of these prefixes. For example, if we consider the prefix "
+		indivi", we would initiate search for the following prefixes:
 		<div class="border-base-300 my-4 rounded-lg border p-4">
 			<div class="mb-2 text-sm font-medium">Search prefixes for "indivi"</div>
 			<code class="text-sm whitespace-pre-wrap">
 				<br />
-				i<br/>
-                vi<br/>
-                ivi<br/>
-                divi<br/>
-                ndivi<br/>
-                indivi<br/>
-                _indivi<br/>
-                </code
-			>
+				i<br />
+				vi<br />
+				ivi<br />
+				divi<br />
+				ndivi<br />
+				indivi<br />
+				_indivi<br />
+			</code>
 		</div>
 
-		<div class="mt-4 text-xl font-semibold">Token Boundary Validation</div>
-		The above search yields many potential candidates, forming a superset of the combinations we want to explore. We need an effective pruning strategy to filter these combinations.
+		<div id="validation" class="mt-4 text-xl font-semibold">Token Boundary Validation</div>
+		The above search yields many potential candidates, forming a superset of the combinations we want
+		to explore. We need an effective pruning strategy to filter these combinations.
 
 		<div class="border-base-300 my-4 rounded-lg border p-4">
 			<div class="mb-2 text-sm font-medium">Token Validation Strategy</div>
 			<p class="mb-3">
 				For each candidate token, we:
-				<br/>
+				<br />
 				• Replace the last word's prefix with the candidate token
-				<br/>
-				• Re-encode the resulting string 
-				<br/>
-                • Compare with expected token sequence
-				<br/>
+				<br />
+				• Re-encode the resulting string
+				<br />
+				• Compare with expected token sequence
+				<br />
 				• Keep only if the sequences match exactly
 			</p>
 		</div>
@@ -726,40 +762,40 @@ Visualizing subtree for prefix: b'user'
 
 		<div class="border-base-300 my-4 rounded-lg border p-4">
 			<div class="mb-2 text-sm font-medium">Example: Validating token "division"</div>
-			
+
 			<div class="mb-3">
 				<div class="font-medium">Input Analysis:</div>
 				• Last word: " indivi"
-				<br/>
-                • Prefix: "divi"
-				<br/>
+				<br />
+				• Prefix: "divi"
+				<br />
 				• Candidate token: "division"
-				<br/>
+				<br />
 				• Resulting word: " indivision"
 			</div>
 
 			<div class="space-y-2">
 				<div class="font-medium">Token Comparison:</div>
-				
+
 				<div>Original tokens:</div>
 				<TokenizerComponent tokens={['ind', 'ivi']} />
-				
+
 				<div>Expected tokens:</div>
 				<TokenizerComponent tokens={['in', 'division']} />
-				
+
 				<div>Actual re-encoded tokens:</div>
 				<TokenizerComponent tokens={['ind', 'iv', 'ision']} />
 			</div>
 		</div>
 
-		Since the re-encoded tokens don't match our expected sequence, we discard "division" as a candidate. By applying this validation process across all candidate tokens, we can effectively filter out invalid completions while preserving the ones that maintain proper token boundaries.
-
-        
+		Since the re-encoded tokens don't match our expected sequence, we discard "division" as a
+		candidate. By applying this validation process across all candidate tokens, we can effectively
+		filter out invalid completions while preserving the ones that maintain proper token boundaries.
 
 		<div class="mt-4 text-xl font-semibold">Example Results</div>
 		<p class="mb-4">Let's see the algorithm in action with some of our test cases:</p>
 
-        <div class="border-base-300 mb-4 rounded-lg border p-4">
+		<div class="border-base-300 mb-4 rounded-lg border p-4">
 			<code class="text-sm whitespace-pre-wrap">
 				{`Results for the dataset:
 Testing: I bought some apple
@@ -840,12 +876,19 @@ Pos 1:  -> [b'individual']... 1 possible tokens
 
 		<div class="mt-4 text-xl font-semibold">Conclusion</div>
 		<p class="mb-4">
-            I am sure there are many other ways to solve this problem. If you have alternative approaches, optimizations, or spot any issues in my implementation, please feel free to open an issue or submit a pull request on GitHub. I welcome contributions and feedback from the community to make this solution even better.
-            <br/>
-            <br/>
+			I am sure there are many other ways to solve this problem. If you have alternative approaches,
+			optimizations, or spot any issues in my implementation, please feel free to open an issue or
+			submit a pull request on GitHub. I welcome contributions and feedback from the community to
+			make this solution even better.
+			<br />
+			<br />
 
-            The code is available <a href="https://github.com/Anilturaga/Character-Prefix-Conditioning" class="link" target="_blank">here</a>.
-
+			The code is available
+			<a
+				href="https://github.com/Anilturaga/Character-Prefix-Conditioning"
+				class="link"
+				target="_blank">here</a
+			>.
 		</p>
 
 		<div class="min-h-72"></div>
