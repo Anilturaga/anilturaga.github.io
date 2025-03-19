@@ -2,7 +2,7 @@
 	import TokenizerComponent from '$lib/cpc/TokenizerComponent.svelte';
 	import { Info, Book } from 'lucide-svelte';
 	const post = {
-		title: 'Character Prefix Conditioning using Back Tokenization',
+		title: "Solving Cursor IDE's Character Prefix Conditioning problem",
 		description:
 			'Implementing an efficient algorithm based on pruned trie search to find possible generation paths for a user completion request',
 		date: '2025-03-17',
