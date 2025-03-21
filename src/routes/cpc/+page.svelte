@@ -660,8 +660,8 @@
 		<br />
 		<br />
 
-		<div class="border-base-300 mb-4 rounded-lg border p-4">
-			<code class="text-sm whitespace-pre-wrap">
+		<div class="border-base-300 mb-4 rounded-lg border p-4 overflow-x-auto">
+			<code class="text-sm whitespace-pre">
 				{`Visualizing subtree for prefix 'user':
 
 ==================================================
