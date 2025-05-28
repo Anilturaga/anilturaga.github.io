@@ -8,7 +8,7 @@
 	<About />
     <div role="alert" class="alert alert-info w-full alert-soft">
         <Info/>
-        <span>I am planning to write about one project per week. Check back soon for more!</span>
+        <span>I am planning & frequently failing to write about one project per week. Check back soon for more!</span>
       </div>
 	<List />
 </div>
