@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let { src, alt, class: className = '', ...restProps } = $props();
+	let { src, alt, class: className = '', objectFit = 'object-cover', ...restProps } = $props();
 	
 	let imgElement: HTMLDivElement;
 	let isLoaded = $state(false);
@@ -54,7 +54,7 @@
 		<img
 			{src}
 			{alt}
-			class="w-full h-full object-cover transition-opacity duration-300 {isLoaded ? 'opacity-100' : 'opacity-0'}"
+			class="w-full h-full {objectFit} transition-opacity duration-300 {isLoaded ? 'opacity-100' : 'opacity-0'}"
 			onload={handleLoad}
 			onerror={handleError}
 			loading="lazy"

@@ -2,6 +2,31 @@
 	<h3 class="text-2xl font-bold">Blog Posts</h3>
 	<div class="card bg-base-200 card-md mt-4">
 		<div class="card-body">
+			<h2 class="card-title">Gemini and me through the streets of Chennai</h2>
+			<div class="text-base-content/70 mb-2">June 22, 2025</div>
+			<p>
+				Productively killing 10 hours in Chennai using Google Gemini
+			</p>
+			<div class="card-actions justify-end">
+				<a class="btn btn-primary" href="/gemini-chennai">Read Now</a>
+			</div>
+		</div>
+	</div>
+	<div class="card bg-base-200 card-md mt-4">
+		<div class="card-body">
+			<h2 class="card-title">Fine-tuning and Distillation of Large Language Models</h2>
+			<div class="text-base-content/70 mb-2">June 05, 2025</div>
+			<p>
+				Video and reference links for a one hour talk I gave as part of the Dynamic Talk series at Grid Dynamics
+			</p>
+			<div class="card-actions justify-end">
+				<a class="btn btn-primary" href="/dynamic-talk">Read Now</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="card bg-base-200 card-md mt-4">
+		<div class="card-body">
 			<h2 class="card-title">CoInterviewer: A hackathon product</h2>
 			<div class="text-base-content/70 mb-2">May 29, 2025</div>
 			<p>
