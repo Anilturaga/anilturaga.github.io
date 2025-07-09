@@ -2,14 +2,14 @@
     import LazyImage from "$lib/LazyImage.svelte";
     import drink from "$lib/assets/gemini-chennai/drink.jpeg";
     import food from "$lib/assets/gemini-chennai/food.jpeg";
+    import fort from "$lib/assets/gemini-chennai/fort.jpeg";
+    import garden from "$lib/assets/gemini-chennai/garden.jpg";
+    import hell from "$lib/assets/gemini-chennai/hell.jpg";
     import mall from "$lib/assets/gemini-chennai/mall.jpeg";
+    import painting from "$lib/assets/gemini-chennai/painting.jpg";
     import statues from "$lib/assets/gemini-chennai/statues.jpeg";
     import whale from "$lib/assets/gemini-chennai/whale.jpeg";
-    import hell from "$lib/assets/gemini-chennai/hell.jpg";
     import thali from "$lib/assets/gemini-chennai/thali.jpeg";
-    import fort from "$lib/assets/gemini-chennai/fort.jpg";
-    import garden from "$lib/assets/gemini-chennai/garden.jpg";
-    import painting from "$lib/assets/gemini-chennai/painting.jpg";
     let images = [food,drink, fort,painting, whale, statues, hell, garden, thali, mall];
     let currentIndex = $state(0);
     const total = images.length;
