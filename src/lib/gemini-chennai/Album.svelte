@@ -5,12 +5,12 @@
     import mall from "$lib/assets/gemini-chennai/mall.jpeg";
     import statues from "$lib/assets/gemini-chennai/statues.jpeg";
     import whale from "$lib/assets/gemini-chennai/whale.jpeg";
-    import hell from "$lib/assets/gemini-chennai/hell.jpeg";
+    import hell from "$lib/assets/gemini-chennai/hell.jpg";
     import thali from "$lib/assets/gemini-chennai/thali.jpeg";
-    import fort from "$lib/assets/gemini-chennai/fort.jpeg";
-    import garden from "$lib/assets/gemini-chennai/garden.jpeg";
-
-    let images = [food,drink, fort, whale, statues, hell, garden, thali, mall];
+    import fort from "$lib/assets/gemini-chennai/fort.jpg";
+    import garden from "$lib/assets/gemini-chennai/garden.jpg";
+    import painting from "$lib/assets/gemini-chennai/painting.jpg";
+    let images = [food,drink, fort,painting, whale, statues, hell, garden, thali, mall];
     let currentIndex = $state(0);
     const total = images.length;
 
