@@ -2,6 +2,28 @@
 	<h3 class="text-2xl font-bold">Blog Posts</h3>
 	<div class="card bg-base-200 card-md mt-4">
 		<div class="card-body">
+			<h2 class="card-title">Adaptive action repetition for long-running agents</h2>
+			<div class="text-base-content/70 mb-2">May 31, 2026</div>
+			<p>A minimal experiment connecting credit assignment, inference cost, and decision stride.</p>
+			<div class="card-actions justify-end">
+				<a class="btn btn-primary" href="/stride-rl">Read Now</a>
+			</div>
+		</div>
+	</div>
+	<div class="card bg-base-200 card-md mt-4">
+		<div class="card-body">
+			<h2 class="card-title">What happens if we replace the app backend with an LLM?</h2>
+			<div class="text-base-content/70 mb-2">October 25, 2025</div>
+			<p>
+				Letting an LLM generate the screen and decide what happens next.
+			</p>
+			<div class="card-actions justify-end">
+				<a class="btn btn-primary" href="/generative-ui">Read Now</a>
+			</div>
+		</div>
+	</div>
+	<div class="card bg-base-200 card-md mt-4">
+		<div class="card-body">
 			<h2 class="card-title">Gemini and me through the streets of Chennai</h2>
 			<div class="text-base-content/70 mb-2">June 22, 2025</div>
 			<p>
