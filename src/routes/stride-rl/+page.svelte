@@ -2,7 +2,7 @@
 	import StrideDemo from '$lib/stride-rl/StrideDemo.svelte';
 
 	const post = {
-		title: 'Adaptive action repetition for long-running agents',
+		title: 'Adaptive Action Repetition for Long-Horizon Agents',
 		description:
 			'A minimal experiment connecting credit assignment, inference cost, and decision stride.',
 		date: '2026-05-31',
@@ -30,17 +30,17 @@
 		<div class="divider"></div>
 
 		<div class="text-md space-y-5 leading-relaxed">
-			<p>Training long-running agents is an optimization problem across at least three axes:</p>
+			<p>
+				Training agents on long horizon tasks is an optimisation problem across at least three axes:
+			</p>
 
 			<ul class="list-inside list-disc space-y-2">
 				<li>
-					Credit assignment: distributing a task's reward across hundreds of decisions is hard — the
-					longer the horizon, the more diluted the signal
+					Credit assignment: distributing a task's reward across hundreds of decisions is hard. the
+					signal gets diluted as the horizon gets longer
 				</li>
 				<li>
-					Inference cost: agents that re-evaluate at every micro-step accumulate unnecessary
-					calls/context; the ones that commit briefly then immediately second-guess are also not
-					good
+					Inference cost: agents that re-evaluate at every step accumulate unnecessary calls/context
 				</li>
 				<li>
 					Decision stride: models need to learn not just what action to take but how long that
@@ -54,7 +54,7 @@
 
 			<p>
 				I built a minimal experiment to demonstrate how these three connect using adaptive action
-				repetition.
+				repetition (AAR).
 			</p>
 
 			<p>
@@ -66,8 +66,15 @@
 
 			<p>
 				Fewer decisions means rewards map back to actions more cleanly. Held actions mean no wasted
-				inference mid-commitment. And the model has to learn the right stride: commit too long and
-				miss the window to correct; too short and back to re-evaluating everything.
+				inference mid-commitment/stride. And the model has to learn the right stride: commit too long
+				and miss the window to correct; too short and back to re-evaluating everything.
+			</p>
+
+			<p>
+				The models with AAR enabled also tend to perform reward hacking much earlier than vanilla
+				models. One persistant case I have seen is the model trying to align the lander to the middle
+				without any descent and letting it free fall. To mitigate this, I added a landing speed based
+				reward.
 			</p>
 
 			<p>
