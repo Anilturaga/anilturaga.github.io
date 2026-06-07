@@ -2,6 +2,16 @@
 	<h3 class="text-2xl font-bold">Blog Posts</h3>
 	<div class="card bg-base-200 card-md mt-4">
 		<div class="card-body">
+			<h2 class="card-title">On measuring productivity gains through AI</h2>
+			<div class="text-base-content/70 mb-2">June 8, 2026</div>
+			<p>What the AI productivity measurement problem means for companies that don't own their AI layer.</p>
+			<div class="card-actions justify-end">
+				<a class="btn btn-primary" href="/ai-productivity">Read Now</a>
+			</div>
+		</div>
+	</div>
+	<div class="card bg-base-200 card-md mt-4">
+		<div class="card-body">
 			<h2 class="card-title">Adaptive Action Repetition for Long-Horizon Agents</h2>
 			<div class="text-base-content/70 mb-2">May 31, 2026</div>
 			<p>A minimal experiment connecting credit assignment, inference cost, and decision stride.</p>
