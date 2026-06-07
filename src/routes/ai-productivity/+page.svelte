@@ -135,7 +135,7 @@
 				highest-grossing law firm, already made this bet and are building their own platform with Palantir
 				and Scale AI as partners [4]. Most organizations won't have that runway, but the direction is
 				the same regardless of scale. A technology partner covers the data collection, measurement
-				layer and ongoing evaluation. Grid Dynamics has been building and running AI platforms for several enterprise clients over the past few years.
+				layer and ongoing evaluation.
 			</p>
 
 			<p>
