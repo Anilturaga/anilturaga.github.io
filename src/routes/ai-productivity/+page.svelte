@@ -1,8 +1,11 @@
 <script lang="ts">
+	import LazyImage from '$lib/LazyImage.svelte';
+	import predictedVsHuman from '$lib/assets/ai-productivity/predicted-vs-human.svg';
+
 	const post = {
 		title: 'On measuring productivity gains through AI',
 		description:
-			'What the AI productivity measurement problem means for companies that don\'t own their AI layer.',
+			"What the AI productivity measurement problem means for companies that don't own their AI layer.",
 		date: '2026-06-08',
 		author: 'Anil Turaga'
 	};
@@ -33,17 +36,18 @@
 					href="https://cognition.ai/blog/ai-guarantee"
 					target="_blank"
 					class="link">AI Productivity Guarantee</a
-				> [1], a commitment to cover Devin's costs in credits if they can't prove it saved you the
-				equivalent in engineering hours. To back it, an agent retroactively evaluates each completed
-				session using the execution trace, the resulting PR and codebase context to estimate how many
-				hours a human would have needed. That estimate converts to salary-based dollars, and the guarantee is backed
-				up to $10M.
+				> [1]. It's a commitment to cover Devin's costs in credits if they can't prove it saved you
+				the equivalent in engineering hours. They do it with an agent that evaluates each completed
+				session using the transcript, the resulting PR and codebase context to estimate how many
+				hours a human would have needed. That estimate is converted into dollars based on hourly bill
+				rate, and the guarantee is backed up to $10M.
 			</p>
 
 			<p>
 				For any company measuring AI ROI, this is the first automated methodology validated in
 				production [2]. Across 258 sessions from 126 enterprise users, Cognition's estimator hit
-				r²_log of 0.74. Anthropic ran the same exercise on a thousand Jira tickets and got 0.46,
+				r²_log of 0.74. Interesting point is that they only used 25 sessions as a development set
+				for the estimator. Anthropic ran the same exercise on a thousand Jira tickets and got 0.46,
 				working only from ticket titles and descriptions.
 			</p>
 
@@ -85,24 +89,38 @@
 					</div>
 				</div>
 				<div class="text-base-content/50 mt-3 text-xs">
-					Numbers from Cognition's published comparison — richer session data correlates with better
-					accuracy
+					From Cognition's published comparison. Richer session data correlates with better accuracy.
 				</div>
 			</div>
 
+			<figure class="bg-base-200 my-2 rounded-2xl p-3">
+				<LazyImage
+					src={predictedVsHuman}
+					alt="Scatter plot of predicted vs human engineering hour estimates"
+					class="mx-auto w-full max-w-xs rounded-xl"
+				/>
+				<figcaption class="text-base-content/60 mt-2 text-sm">
+					Predicted vs. human estimates from Cognition's evaluator. The gray band shows sessions
+					within 2× of the true estimate. Source: cognition.ai/blog/ai-productivity
+				</figcaption>
+			</figure>
+
 			<p>
-				For software, this is relatively easy. Claude Code, Codex and similar tools store full
-				session transcripts locally and those link to PRs with relatively little effort. Most other
-				business functions don't have this setup.
+				Replicating this is relatively easy in software engineering tasks. Claude Code, Codex and
+				similar tools store full session transcripts locally and those link to PRs with relatively
+				little effort. Most other business functions don't have this setup.
 			</p>
 
 			<p>
 				Sales, finance and legal mostly run AI through platforms like Microsoft Copilot that don't
-				have a straightforward way to surface session transcripts and associated artifacts. Enterprise platforms like SAP have
-				also been tightening API access for third-party AI integrations [3].
+				have a straightforward way to export session transcripts and associated artifacts. Enterprise
+				platforms like SAP have also been tightening API access for third-party AI integrations [3].
 			</p>
 
-			<p>Without session data there's no measurement, and without measurement there's no ROI case to make.</p>
+			<p>
+				Without deep access to data there's no measurement, and without measurement there's no ROI
+				case to make.
+			</p>
 
 			<div class="bg-base-200 rounded-lg p-4">
 				<div class="flex flex-col gap-2 text-sm">
@@ -130,20 +148,20 @@
 			</div>
 
 			<p>
-				The exit is owning your own AI layer. You control session data, can instrument any workflow,
-				and aren't relying on a vendor to tell you what's working. Kirkland & Ellis, the world's
-				highest-grossing law firm, already made this bet and are building their own platform with Palantir
-				and Scale AI as partners [4]. Most organizations won't have that runway, but the direction is
-				the same regardless of scale. A technology partner covers the data collection, measurement
-				layer and ongoing evaluation.
+				The exit is owning the AI layer. Kirkland & Ellis, the world's highest-grossing law firm, is
+				going to spend $500M to build their own AI platform by partnering with Palantir and Scale AI
+				[4]. Most organizations won't have that runway, but the direction is the same regardless of
+				scale. A technology partner with deep expertise can help with the entire lifecycle of
+				platform building and AIOps.
 			</p>
 
 			<p>
-				IT services companies face this more directly than most. As measurement methodologies like
-				Cognition's spread, clients will start asking about the productivity gains of all their
+				IT services companies face this more directly than others. As measurement methodologies like
+				Cognition's spread, clients will start asking about the productivity gains of their
 				developers using AI. For service firms, building this capability internally is also a
-				competitive investment. You get to accelerate your own developers with internal platforms based on real data, and the experience of running it on your own teams feeds directly into how you
-				build these platforms for clients.
+				competitive investment. You get to accelerate your own developers with internal platforms
+				based on real data, and the experience of running it on your own teams feeds directly into
+				how you build these platforms for clients.
 			</p>
 
 			<div class="divider mt-8"></div>
