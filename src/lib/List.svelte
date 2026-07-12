@@ -2,9 +2,25 @@
 	<h3 class="text-2xl font-bold">Blog Posts</h3>
 	<div class="card bg-base-200 card-md mt-4">
 		<div class="card-body">
+			<h2 class="card-title">Tool call round trip from the eyes of a model</h2>
+			<div class="text-base-content/70 mb-2">July 11, 2026</div>
+			<p>
+				A rendering of the same conversation through the chat templates of GPT-OSS and Qwen3,
+				with every special token annotated.
+			</p>
+			<div class="card-actions justify-end">
+				<a class="btn btn-primary" href="/llm-tool-calling">Read Now</a>
+			</div>
+		</div>
+	</div>
+	<div class="card bg-base-200 card-md mt-4">
+		<div class="card-body">
 			<h2 class="card-title">Understanding the deprecation of temperature parameter in LLMs</h2>
 			<div class="text-base-content/70 mb-2">June 26, 2026</div>
-			<p>Temperature, top_p and top_k went from being the main parameters for controlling the output of LLMs to being deprecated as a consequence of better training methods.</p>
+			<p>
+				Temperature, top_p and top_k went from being the main parameters for controlling the output
+				of LLMs to being deprecated as a consequence of better training methods.
+			</p>
 			<div class="card-actions justify-end">
 				<a class="btn btn-primary" href="/llm-temperature">Read Now</a>
 			</div>
@@ -14,7 +30,10 @@
 		<div class="card-body">
 			<h2 class="card-title">On measuring productivity gains through AI</h2>
 			<div class="text-base-content/70 mb-2">June 8, 2026</div>
-			<p>What the AI productivity measurement problem means for companies that don't own their AI layer.</p>
+			<p>
+				What the AI productivity measurement problem means for companies that don't own their AI
+				layer.
+			</p>
 			<div class="card-actions justify-end">
 				<a class="btn btn-primary" href="/ai-productivity">Read Now</a>
 			</div>
@@ -34,9 +53,7 @@
 		<div class="card-body">
 			<h2 class="card-title">What happens if we replace the app backend with an LLM?</h2>
 			<div class="text-base-content/70 mb-2">October 25, 2025</div>
-			<p>
-				Letting an LLM generate the screen and decide what happens next.
-			</p>
+			<p>Letting an LLM generate the screen and decide what happens next.</p>
 			<div class="card-actions justify-end">
 				<a class="btn btn-primary" href="/generative-ui">Read Now</a>
 			</div>
@@ -46,9 +63,7 @@
 		<div class="card-body">
 			<h2 class="card-title">Gemini and me through the streets of Chennai</h2>
 			<div class="text-base-content/70 mb-2">June 22, 2025</div>
-			<p>
-				Productively killing 10 hours in Chennai using Google Gemini
-			</p>
+			<p>Productively killing 10 hours in Chennai using Google Gemini</p>
 			<div class="card-actions justify-end">
 				<a class="btn btn-primary" href="/gemini-chennai">Read Now</a>
 			</div>
@@ -59,7 +74,8 @@
 			<h2 class="card-title">Fine-tuning and Distillation of Large Language Models</h2>
 			<div class="text-base-content/70 mb-2">June 05, 2025</div>
 			<p>
-				Video and reference links for a one hour talk I gave as part of the Dynamic Talk series at Grid Dynamics
+				Video and reference links for a one hour talk I gave as part of the Dynamic Talk series at
+				Grid Dynamics
 			</p>
 			<div class="card-actions justify-end">
 				<a class="btn btn-primary" href="/dynamic-talk">Read Now</a>
@@ -72,7 +88,8 @@
 			<h2 class="card-title">CoInterviewer: A hackathon product</h2>
 			<div class="text-base-content/70 mb-2">May 29, 2025</div>
 			<p>
-				A walkthrough of the features our team of five developed over the course of two weekends for an AI-powered interview tool.
+				A walkthrough of the features our team of five developed over the course of two weekends for
+				an AI-powered interview tool.
 			</p>
 			<div class="card-actions justify-end">
 				<a class="btn btn-primary" href="/cointerviewer">Read Now</a>
@@ -84,7 +101,8 @@
 			<h2 class="card-title">Solving Cursor IDE's Character Prefix Conditioning problem</h2>
 			<div class="text-base-content/70 mb-2">March 17, 2025</div>
 			<p>
-				Implementing an efficient algorithm based on pruned trie search to find possible generation paths for a user completion request
+				Implementing an efficient algorithm based on pruned trie search to find possible generation
+				paths for a user completion request
 			</p>
 			<div class="card-actions justify-end">
 				<a class="btn btn-primary" href="/cpc">Read Now</a>
