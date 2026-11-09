@@ -1,0 +1,105 @@
+@import 'tailwindcss';
+@import '@xyflow/react/dist/base.css';
+
+/* Layout: one dark control-room stage. Flow diagram on top, build lane and roadmap below.
+   Deliberately single-theme (night shift); every color is set explicitly. */
+@theme {
+  --color-bg: #0c0c0d;
+  --color-surface: #141416;
+  --color-surface-2: #1d1d20;
+  --color-line: #1c1c1f;
+  --color-line-strong: #2b2b30;
+  --color-wire: #2a2a2e;
+  --color-fg: #e8e8ea;
+  --color-muted: #8b8b92;
+  --color-dim: #5c5c63;
+  --color-faint: #3a3a40;
+  --color-amber: #e9b766;
+  --color-green: #7fd394;
+  --color-red: #e0645d;
+  --color-card: #cfcfd3;
+  --color-ring: #e9b766;
+
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+body {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 20px;
+}
+
+/* React Flow: strip chrome, keep our own look */
+.react-flow {
+  --xy-background-color: transparent;
+  --xy-node-border-radius: 0;
+}
+.react-flow__node {
+  font-family: var(--font-mono);
+  cursor: grab;
+}
+.react-flow__node.dragging {
+  cursor: grabbing;
+}
+.react-flow__handle {
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  pointer-events: none;
+}
+.react-flow__attribution {
+  display: none;
+}
+
+/* conic progress ring with a hollow centre, no SVG */
+.ring {
+  border-radius: 9999px;
+  background: conic-gradient(var(--ring-color) calc(var(--p) * 1turn), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+}
+
+.dashed-chip {
+  border: 1px dashed var(--color-faint);
+  border-radius: 4px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -120% 0;
+  }
+  100% {
+    background-position: 220% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
