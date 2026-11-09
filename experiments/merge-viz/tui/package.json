@@ -5,7 +5,8 @@
   "scripts": {
     "start": "bun run src/index.tsx",
     "snapshot": "bun run src/snapshot.tsx snapshots 3 8 14",
-    "typecheck": "tsc --noEmit -p ."
+    "typecheck": "tsc --noEmit -p .",
+    "record": "bun run src/record.tsx media/merge-viz-tui.mp4 26"
   },
   "dependencies": {
     "@opentui/core": "0.8.3",

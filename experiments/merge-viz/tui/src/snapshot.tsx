@@ -17,7 +17,7 @@ function Live() {
 }
 
 const t = await testRender(<Live />, { width: MIN.w, height: MIN.h })
-const hex = (c: { buffer: Record<string, number> }) => {
+const hex = (c: { buffer: ArrayLike<number> }) => {
   const b = c.buffer
   return b[3] === 0 ? null : '#' + [b[0], b[1], b[2]].map((v) => Math.round(v * (v <= 1 ? 255 : 1)).toString(16).padStart(2, '0')).join('')
 }

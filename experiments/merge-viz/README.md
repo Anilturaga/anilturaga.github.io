@@ -91,6 +91,18 @@ register it with `extend()`.
 `bun run snapshot` renders frames headlessly, using OpenTUI's test renderer
 and `captureSpans`, to colored HTML for review.
 
+### Video of the terminal version
+
+OpenTUI can't run in a browser: its renderer is a native Zig library, shipped
+as one binary per platform and loaded through Bun/Node FFI. So the terminal
+version is also available as a recording,
+[`tui/media/merge-viz-tui.mp4`](tui/media/merge-viz-tui.mp4).
+`bun run record` regenerates it. The script drives the real `<App>` through
+OpenTUI's headless renderer at 30 fps, following a short script of key
+presses (pause, ¼×, 1×). It captures each frame's cells and colors, draws
+them in a terminal window with Playwright, and encodes the frames with
+ffmpeg.
+
 ## Controls
 
 Web: **Pause**, **1× / ¼×**, space bar; drag stations.
