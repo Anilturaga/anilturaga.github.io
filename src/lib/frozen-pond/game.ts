@@ -612,13 +612,14 @@ export class Game {
 
 			// lose your balance if you whip the blades around too far, too fast:
 			// a quarter turn at full speed is fine, a reversal or frantic zigzag is not
+			// (smooth carving under ~1.5 rad/s never counts, however long you keep it up)
 			const hard = spinning ? 0 : clamp((speed0 - 40) / 50, 0, 1);
-			s.imb += (Math.abs(angVel) + Math.max(0, slip - 0.95) * 3) * hard * dt;
-			s.imb *= Math.exp(-0.6 * dt);
+			s.imb += (Math.max(0, Math.abs(angVel) - 1.5) + Math.max(0, slip - 0.95) * 3) * hard * dt;
+			s.imb *= Math.exp(-0.8 * dt);
 
 			s.vx = fx * vf + rx * vl;
 			s.vy = fy * vf + ry * vl;
-			if (s.imb > 1.8) this.fall(Math.atan2(s.vy, s.vx));
+			if (s.imb > 1.1) this.fall(Math.atan2(s.vy, s.vx));
 		}
 		let nx = s.x + s.vx * dt;
 		let ny = s.y + s.vy * dt;
