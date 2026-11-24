@@ -120,10 +120,13 @@ const mixLook = (a: Look, b: Look, t: number, out: Look) => {
 	out.wind = l(a.wind, b.wind);
 };
 
-const FADE_SECONDS = 0.9;
+const WIPE_SECONDS = 1.1;
 const MAX_SNOWFALL = 1.6;
-const PAINT_BUDGET_MS = 3;
-const PAINT_BUDGET_PENDING_MS = 7; // someone is waiting on this climate: hurry a little
+// climates are painted while you're still reading the post; once you're playing
+// only a sliver of each frame goes to it, so it never competes with the audio
+const PAINT_BUDGET_IDLE_MS = 6;
+const PAINT_BUDGET_PLAYING_MS = 1.5;
+const PAINT_BUDGET_PENDING_MS = 4; // someone is waiting on this climate: hurry a little
 
 /** Soft lamp light, rendered once and stamped with globalAlpha each frame. */
 function glowSprite(r: number, stops: [number, string][]) {
@@ -216,6 +219,12 @@ export class Game {
 	private to: Painted | null = null;
 	private fade = 1;
 	private fadeE = 1;
+	/** the wipe's direction across the screen, and a phase for its wavy edge */
+	private wipe = { dx: 1, dy: 0, ph: 0 };
+	private wipePath: Path2D | null = null;
+	private wipeEdge: Path2D | null = null;
+	/** set while the player is in the game (vs. looking at the thumbnail) */
+	playing = false;
 	private mixes: Painted[] = [];
 	private look!: Look;
 	private lookFrom!: Look;
@@ -301,14 +310,16 @@ export class Game {
 		if (this.to) {
 			// mid-fade: fold what's on screen into a scratch pair and fade on from there
 			const m = this.scratchPair();
+			const clip = this.wipePath ?? this.buildWipe();
 			for (const k of ['bg', 'fg'] as const) {
 				const c = m[k].getContext('2d')!;
-				c.globalAlpha = 1;
 				c.clearRect(0, 0, m[k].width, m[k].height);
 				c.drawImage(this.from[k], 0, 0);
-				c.globalAlpha = this.fadeE;
-				c.drawImage(this.to[k], 0, 0);
-				c.globalAlpha = 1;
+				c.save();
+				c.translate(this.ox, this.oy); // the wipe lives in screen space
+				c.clip(clip);
+				c.drawImage(this.to[k], -this.ox, -this.oy);
+				c.restore();
 			}
 			this.from = m;
 		}
@@ -318,6 +329,9 @@ export class Game {
 		} else {
 			this.to = target;
 			this.fade = this.fadeE = 0;
+			const a = (Math.random() < 0.5 ? 0 : Math.PI) + (Math.random() - 0.5) * 0.9;
+			this.wipe = { dx: Math.cos(a), dy: Math.sin(a), ph: Math.random() * 100 };
+			this.audio.whoosh();
 		}
 		this.lookFrom = { ...this.look, ambient: [...this.look.ambient], shadow: [...this.look.shadow] };
 		this.lookTo = lookOf(PALETTES[idx]);
@@ -343,7 +357,12 @@ export class Game {
 	/** Paint unpainted climates a few milliseconds at a time. */
 	private pumpPaint() {
 		const t0 = performance.now();
-		const budget = this.pending >= 0 ? PAINT_BUDGET_PENDING_MS : PAINT_BUDGET_MS;
+		const budget =
+			this.pending >= 0
+				? PAINT_BUDGET_PENDING_MS
+				: this.playing
+					? PAINT_BUDGET_PLAYING_MS
+					: PAINT_BUDGET_IDLE_MS;
 		while (performance.now() - t0 < budget) {
 			if (!this.job) {
 				let idx = this.pending >= 0 && !this.painted.has(this.pending) ? this.pending : -1;
@@ -358,6 +377,45 @@ export class Game {
 				this.job = null;
 			}
 		}
+	}
+
+	/**
+	 * The region the new climate has reached: everything behind a soft, wavy
+	 * front sweeping across the screen. Built once per frame while wiping.
+	 */
+	private buildWipe() {
+		const { dx, dy, ph } = this.wipe;
+		const px = -dy;
+		const py = dx;
+		const { cw, ch } = this;
+		// how far the front has to travel to cross the whole screen
+		const proj = [0, cw * dx, ch * dy, cw * dx + ch * dy];
+		const lo = Math.min(...proj) - 30;
+		const hi = Math.max(...proj) + 30;
+		const front = lo + (hi - lo) * this.fadeE;
+		// extend well past the screen so a bake covers the whole world
+		const far = 2000;
+		const path = new Path2D();
+		const edge = new Path2D();
+		let first = true;
+		for (let q = -far; q <= far; q += q > -400 && q < 1200 ? 5 : 100) {
+			const off = 7 * Math.sin(q * 0.045 + ph) + 3 * Math.sin(q * 0.13 + ph * 2) + 1.5 * Math.sin(q * 0.31 + ph);
+			const x = dx * (front + off) + px * q;
+			const y = dy * (front + off) + py * q;
+			if (first) {
+				path.moveTo(x, y);
+				edge.moveTo(x, y);
+				first = false;
+			} else {
+				path.lineTo(x, y);
+				edge.lineTo(x, y);
+			}
+		}
+		path.lineTo(dx * -far + px * far, dy * -far + py * far);
+		path.lineTo(dx * -far - px * far, dy * -far - py * far);
+		path.closePath();
+		this.wipeEdge = edge;
+		return path;
 	}
 
 	private applyLook() {
@@ -478,13 +536,14 @@ export class Game {
 		this.t += dt;
 		this.pumpPaint();
 		if (this.to) {
-			this.fade = Math.min(1, this.fade + dt / FADE_SECONDS);
+			this.fade = Math.min(1, this.fade + dt / WIPE_SECONDS);
 			this.fadeE = smooth(this.fade);
 			mixLook(this.lookFrom, this.lookTo, this.fadeE, this.look);
 			this.applyLook();
 			if (this.fade >= 1) {
 				this.from = this.to;
 				this.to = null;
+				this.wipePath = this.wipeEdge = null;
 			}
 		}
 
@@ -958,10 +1017,13 @@ export class Game {
 		const { ox, oy, cw, ch } = this;
 		ctx.globalAlpha = 1;
 		// the old climate stays fully opaque and the new one fades in over it
+		this.wipePath = this.to ? this.buildWipe() : null;
 		ctx.drawImage(this.from.bg, ox, oy, cw, ch, 0, 0, cw, ch);
-		if (this.to) {
-			ctx.globalAlpha = this.fadeE;
+		if (this.to && this.wipePath) {
+			ctx.save();
+			ctx.clip(this.wipePath);
 			ctx.drawImage(this.to.bg, ox, oy, cw, ch, 0, 0, cw, ch);
+			ctx.restore();
 		}
 		ctx.globalAlpha = this.look.trailAlpha;
 		ctx.drawImage(this.trail, ox, oy, cw, ch, 0, 0, cw, ch);
@@ -990,16 +1052,18 @@ export class Game {
 			const tw = Math.sin(this.t * g.s + g.p);
 			if (tw < 0.9) continue;
 			const a = (tw - 0.9) / 0.1;
-			ctx.fillStyle = `rgba(255,255,255,${a})`;
+			ctx.fillStyle = '#fff';
+			ctx.globalAlpha = a;
 			ctx.fillRect(x, y, 1, 1);
 			if (a > 0.55) {
-				ctx.fillStyle = `rgba(255,255,255,${a * 0.4})`;
+				ctx.globalAlpha = a * 0.4;
 				ctx.fillRect(x - 1, y, 1, 1);
 				ctx.fillRect(x + 1, y, 1, 1);
 				ctx.fillRect(x, y - 1, 1, 1);
 				ctx.fillRect(x, y + 1, 1, 1);
 			}
 		}
+		ctx.globalAlpha = 1;
 
 		const sk = this.skeleton();
 		const sun = w.sun;
@@ -1028,13 +1092,15 @@ export class Game {
 			const [x, y] = vProj(p);
 			const a = clamp(p.life / p.max, 0, 1);
 			if (p.sparkle) {
-				const tw = 0.5 + 0.5 * Math.sin(this.t * 20 + p.x);
-				ctx.fillStyle = `rgba(255,250,235,${a * tw})`;
+				ctx.fillStyle = '#fffaeb';
+				ctx.globalAlpha = a * (0.5 + 0.5 * Math.sin(this.t * 20 + p.x));
 			} else {
-				ctx.fillStyle = `rgba(255,255,255,${0.5 + a * 0.5})`;
+				ctx.fillStyle = '#fff';
+				ctx.globalAlpha = 0.5 + a * 0.5;
 			}
 			ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
 		}
+		ctx.globalAlpha = 1;
 
 		this.drawSkater(ctx, sk, vProj, this.colors);
 
@@ -1053,10 +1119,23 @@ export class Game {
 		}
 
 		ctx.drawImage(this.from.fg, ox, oy, cw, ch, 0, 0, cw, ch);
-		if (this.to) {
-			ctx.globalAlpha = this.fadeE;
+		if (this.to && this.wipePath) {
+			ctx.save();
+			ctx.clip(this.wipePath);
 			ctx.drawImage(this.to.fg, ox, oy, cw, ch, 0, 0, cw, ch);
-			ctx.globalAlpha = 1;
+			ctx.restore();
+			// a bright, glittering front of fresh snow
+			if (this.wipeEdge) {
+				ctx.strokeStyle = '#fff';
+				ctx.lineJoin = 'round';
+				ctx.globalAlpha = 0.18;
+				ctx.lineWidth = 4;
+				ctx.stroke(this.wipeEdge);
+				ctx.globalAlpha = 0.75;
+				ctx.lineWidth = 1;
+				ctx.stroke(this.wipeEdge);
+				ctx.globalAlpha = 1;
+			}
 		}
 
 		// snow: the pool is sized for a blizzard, each climate shows a share of it

@@ -61,7 +61,7 @@ export class PondAudio {
 		this.master.connect(comp);
 
 		const reverb = ctx.createConvolver();
-		reverb.buffer = this.impulse(5);
+		reverb.buffer = this.impulse(2.8);
 		const wet = ctx.createGain();
 		wet.gain.value = 0.9;
 		reverb.connect(wet).connect(this.master);
@@ -196,12 +196,12 @@ export class PondAudio {
 			g.gain.setValueAtTime(vol, t + dur - 1);
 			g.gain.linearRampToValueAtTime(0, t + dur + 3.5);
 			g.connect(this.padFilter);
-			const types: OscillatorType[] = bass ? ['sine'] : ['sine', 'triangle', 'sine'];
+			const types: OscillatorType[] = bass ? ['sine'] : ['sine', 'triangle'];
 			types.forEach((type, k) => {
 				const o = ctx.createOscillator();
 				o.type = type;
 				o.frequency.value = mtof(m);
-				o.detune.value = (k - 1) * 7;
+				o.detune.value = k === 0 ? -5 : 5;
 				o.connect(g);
 				o.start(t);
 				o.stop(t + dur + 4);
@@ -259,15 +259,47 @@ export class PondAudio {
 		src.stop(t + dur + 0.05);
 	}
 
+	private lastSpeed = -1;
+	private lastSkid = -1;
+
 	/** Called every frame. speed and skid are 0..1 */
 	update(speed: number, skid: number) {
 		const ctx = this.ctx;
 		if (!ctx) return;
 		this.speed = speed;
+		// only touch the audio graph when something audible changed
+		if (Math.abs(speed - this.lastSpeed) < 0.01 && Math.abs(skid - this.lastSkid) < 0.02) return;
+		this.lastSpeed = speed;
+		this.lastSkid = skid;
 		const now = ctx.currentTime;
 		this.bladeGain.gain.setTargetAtTime(0.07 * Math.pow(speed, 1.2), now, 0.08);
 		this.bladeFilter.frequency.setTargetAtTime(2400 + 2200 * speed, now, 0.1);
 		this.skidGain.gain.setTargetAtTime(0.32 * skid, now, 0.04);
+	}
+
+	/** A soft gust for a change of climate. */
+	whoosh() {
+		const ctx = this.ctx;
+		if (!ctx || ctx.state !== 'running') return;
+		const t = ctx.currentTime;
+		const src = ctx.createBufferSource();
+		src.buffer = this.noise;
+		const f = ctx.createBiquadFilter();
+		f.type = 'bandpass';
+		f.Q.value = 0.8;
+		f.frequency.setValueAtTime(350, t);
+		f.frequency.exponentialRampToValueAtTime(1800, t + 0.55);
+		f.frequency.exponentialRampToValueAtTime(600, t + 1.1);
+		const g = ctx.createGain();
+		g.gain.setValueAtTime(0.0001, t);
+		g.gain.exponentialRampToValueAtTime(0.09, t + 0.35);
+		g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+		src.connect(f).connect(g).connect(this.sfx);
+		const wet = ctx.createGain();
+		wet.gain.value = 0.4;
+		g.connect(wet).connect(this.send);
+		src.start(t, Math.random() * 2);
+		src.stop(t + 1.25);
 	}
 
 	stroke() {

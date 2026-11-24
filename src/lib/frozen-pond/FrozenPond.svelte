@@ -117,6 +117,7 @@
 		} catch {
 			// no fullscreen API here (e.g. iPhone Safari): the fixed overlay covers the page instead
 		}
+		game.playing = true;
 		game.audio.start();
 		game.audio.setMuted(muted);
 		game.start();
@@ -133,6 +134,7 @@
 		document.documentElement.style.overflow = '';
 		if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
 		if (game) {
+			game.playing = false;
 			for (const k of ['left', 'right', 'up', 'down'] as InputKey[]) game.setKey(k, false);
 			game.setPointer(0, 0, false);
 			game.audio.suspend();
