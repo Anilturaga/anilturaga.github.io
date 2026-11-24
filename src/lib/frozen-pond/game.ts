@@ -1,4 +1,16 @@
-import { generateWorld, pondSdf, TILT, SHADOW_K, type World, type RGB } from './world';
+import {
+	buildLayout,
+	paintClimate,
+	pondSdf,
+	PALETTES,
+	TILT,
+	SHADOW_K,
+	LAMP_H,
+	type Layout,
+	type Painted,
+	type Palette,
+	type RGB
+} from './world';
 import { PondAudio } from './audio';
 import { clamp } from './noise';
 
@@ -64,10 +76,71 @@ function tint(hex: string, a: RGB) {
 	return `rgb(${(((n >> 16) & 255) * a[0]) | 0},${(((n >> 8) & 255) * a[1]) | 0},${((n & 255) * a[2]) | 0})`;
 }
 
+const SKATER_COLORS: Record<string, string> = {
+	pants: '#2e3150',
+	skate: '#dfe3ec',
+	coat: '#efe0c6',
+	coatShade: '#c4b096',
+	scarf: '#d8462a',
+	hat: '#c63a24',
+	pom: '#f4ece0',
+	skin: '#f1c7a1',
+	mitt: '#b5341f'
+};
+
+/** The parts of a climate that are applied live, every frame, so they can ease. */
+interface Look {
+	ambient: RGB;
+	shadow: RGB;
+	shadowAlpha: number;
+	trailAlpha: number;
+	lamp: number;
+	snowfall: number;
+	wind: number;
+}
+const lookOf = (p: Palette): Look => ({
+	ambient: [...p.ambient],
+	shadow: [...p.shadow],
+	shadowAlpha: p.shadowAlpha,
+	trailAlpha: p.trailAlpha,
+	lamp: p.lamp,
+	snowfall: p.snowfall,
+	wind: p.wind
+});
+const mixLook = (a: Look, b: Look, t: number, out: Look) => {
+	const l = (x: number, y: number) => x + (y - x) * t;
+	for (let i = 0; i < 3; i++) {
+		out.ambient[i] = l(a.ambient[i], b.ambient[i]);
+		out.shadow[i] = l(a.shadow[i], b.shadow[i]);
+	}
+	out.shadowAlpha = l(a.shadowAlpha, b.shadowAlpha);
+	out.trailAlpha = l(a.trailAlpha, b.trailAlpha);
+	out.lamp = l(a.lamp, b.lamp);
+	out.snowfall = l(a.snowfall, b.snowfall);
+	out.wind = l(a.wind, b.wind);
+};
+
+const FADE_SECONDS = 0.9;
+const MAX_SNOWFALL = 1.6;
+const PAINT_BUDGET_MS = 3;
+const PAINT_BUDGET_PENDING_MS = 7; // someone is waiting on this climate: hurry a little
+
+/** Soft lamp light, rendered once and stamped with globalAlpha each frame. */
+function glowSprite(r: number, stops: [number, string][]) {
+	const c = document.createElement('canvas');
+	c.width = c.height = r * 2;
+	const g = c.getContext('2d')!;
+	const grad = g.createRadialGradient(r, r, 0, r, r, r);
+	for (const [o, col] of stops) grad.addColorStop(o, col);
+	g.fillStyle = grad;
+	g.fillRect(0, 0, r * 2, r * 2);
+	return c;
+}
+
 export type InputKey = 'left' | 'right' | 'up' | 'down';
 
 export class Game {
-	world!: World;
+	world!: Layout;
 	readonly audio = new PondAudio();
 	onInfo?: (info: { palette: string; seed: number }) => void;
 
@@ -78,6 +151,16 @@ export class Game {
 	private trail = document.createElement('canvas');
 	private tctx = this.trail.getContext('2d')!;
 	private sprite = document.createElement('canvas');
+	private poolSprite = glowSprite(70, [
+		[0, 'rgba(255,170,90,0.35)'],
+		[0.5, 'rgba(200,120,70,0.12)'],
+		[1, 'rgba(0,0,0,0)']
+	]);
+	private bulbSprite = glowSprite(16, [
+		[0, 'rgba(255,214,150,0.9)'],
+		[0.25, 'rgba(255,170,90,0.35)'],
+		[1, 'rgba(255,150,80,0)']
+	]);
 
 	private dpr = 1;
 	private scale = 3;
@@ -122,6 +205,21 @@ export class Game {
 	private last = 0;
 	private t = 0;
 	private colors: Record<string, string> = {};
+	private shadowCss = '#000';
+
+	// climates: each one is painted once in the background, then crossfaded to
+	private painted = new Map<number, Painted>();
+	private job: { idx: number; gen: Generator<void, Painted> } | null = null;
+	private climate = 0;
+	private pending = -1;
+	private from!: Painted;
+	private to: Painted | null = null;
+	private fade = 1;
+	private fadeE = 1;
+	private mixes: Painted[] = [];
+	private look!: Look;
+	private lookFrom!: Look;
+	private lookTo!: Look;
 
 	constructor(
 		private canvas: HTMLCanvasElement,
@@ -140,7 +238,7 @@ export class Game {
 	}
 
 	regenerate(seed = Math.floor(Math.random() * 1e9)) {
-		this.world = generateWorld(seed);
+		this.world = buildLayout(seed);
 		const w = this.world;
 		this.trail.width = w.W;
 		this.trail.height = w.H;
@@ -163,21 +261,110 @@ export class Game {
 		this.prevFeet = null;
 		this.particles = [];
 		this.cam = { x: w.start.x, y: w.start.y - 20 };
-		const amb = w.palette.ambient;
-		this.colors = {
-			pants: tint('#2e3150', amb),
-			skate: tint('#dfe3ec', amb),
-			coat: tint('#efe0c6', amb),
-			coatShade: tint('#c4b096', amb),
-			scarf: tint('#d8462a', amb),
-			hat: tint('#c63a24', amb),
-			pom: tint('#f4ece0', amb),
-			skin: tint('#f1c7a1', amb),
-			mitt: tint('#b5341f', amb)
-		};
+
+		// the first climate is painted right away; the rest follow in the background
+		this.painted.clear();
+		this.job = null;
+		this.pending = -1;
+		this.climate = Math.floor(Math.random() * PALETTES.length);
+		const gen = paintClimate(w, PALETTES[this.climate]);
+		let r = gen.next();
+		while (!r.done) r = gen.next();
+		this.painted.set(this.climate, r.value);
+		this.from = r.value;
+		this.to = null;
+		this.fade = this.fadeE = 1;
+		this.look = lookOf(PALETTES[this.climate]);
+		this.lookFrom = lookOf(PALETTES[this.climate]);
+		this.lookTo = lookOf(PALETTES[this.climate]);
+		this.applyLook();
+
 		this.audio.root = w.musicRoot;
-		this.resetWeather();
-		this.onInfo?.({ palette: w.palette.name, seed });
+		this.onInfo?.({ palette: PALETTES[this.climate].name, seed });
+	}
+
+	/** Switch to a different climate, keeping the skater, trails and everything else. */
+	nextClimate() {
+		if (!this.world) return;
+		let idx = this.climate;
+		while (idx === this.climate) idx = Math.floor(Math.random() * PALETTES.length);
+		this.climate = idx;
+		this.onInfo?.({ palette: PALETTES[idx].name, seed: this.world.seed });
+		if (this.painted.has(idx)) this.fadeTo(idx);
+		else this.pending = idx; // fades in as soon as its paint finishes
+	}
+
+	private fadeTo(idx: number) {
+		const target = this.painted.get(idx)!;
+		this.pending = -1;
+		if (target === this.to) return;
+		if (this.to) {
+			// mid-fade: fold what's on screen into a scratch pair and fade on from there
+			const m = this.scratchPair();
+			for (const k of ['bg', 'fg'] as const) {
+				const c = m[k].getContext('2d')!;
+				c.globalAlpha = 1;
+				c.clearRect(0, 0, m[k].width, m[k].height);
+				c.drawImage(this.from[k], 0, 0);
+				c.globalAlpha = this.fadeE;
+				c.drawImage(this.to[k], 0, 0);
+				c.globalAlpha = 1;
+			}
+			this.from = m;
+		}
+		if (target === this.from) {
+			this.to = null;
+			this.fade = this.fadeE = 1;
+		} else {
+			this.to = target;
+			this.fade = this.fadeE = 0;
+		}
+		this.lookFrom = { ...this.look, ambient: [...this.look.ambient], shadow: [...this.look.shadow] };
+		this.lookTo = lookOf(PALETTES[idx]);
+	}
+
+	private scratchPair(): Painted {
+		const { W, H } = this.world;
+		if (this.mixes.length < 2 || this.mixes[0].bg.width !== W) {
+			const mk = () => {
+				const c = document.createElement('canvas');
+				c.width = W;
+				c.height = H;
+				return c;
+			};
+			this.mixes = [
+				{ bg: mk(), fg: mk() },
+				{ bg: mk(), fg: mk() }
+			];
+		}
+		return this.mixes[0] === this.from ? this.mixes[1] : this.mixes[0];
+	}
+
+	/** Paint unpainted climates a few milliseconds at a time. */
+	private pumpPaint() {
+		const t0 = performance.now();
+		const budget = this.pending >= 0 ? PAINT_BUDGET_PENDING_MS : PAINT_BUDGET_MS;
+		while (performance.now() - t0 < budget) {
+			if (!this.job) {
+				let idx = this.pending >= 0 && !this.painted.has(this.pending) ? this.pending : -1;
+				if (idx < 0) idx = PALETTES.findIndex((_, i) => !this.painted.has(i));
+				if (idx < 0) return;
+				this.job = { idx, gen: paintClimate(this.world, PALETTES[idx]) };
+			}
+			const r = this.job.gen.next();
+			if (r.done) {
+				this.painted.set(this.job.idx, r.value);
+				if (this.pending === this.job.idx) this.fadeTo(this.job.idx);
+				this.job = null;
+			}
+		}
+	}
+
+	private applyLook() {
+		const a = this.look.ambient;
+		for (const k in SKATER_COLORS) this.colors[k] = tint(SKATER_COLORS[k], a);
+		const c = this.look.shadow;
+		this.shadowCss = `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
 	}
 
 	resize(cssW: number, cssH: number) {
@@ -203,15 +390,15 @@ export class Game {
 
 	private resetWeather() {
 		if (!this.cw || !this.world) return;
-		const d = this.world.snowDensity;
-		const n = Math.round(240 * d * ((this.cw * this.ch) / (420 * 300)));
+		// allocate for the heaviest snowfall; each climate just shows a share of it
+		const n = Math.round(240 * MAX_SNOWFALL * ((this.cw * this.ch) / (420 * 300)));
 		this.flakes = Array.from({ length: n }, () => ({
 			x: Math.random() * this.cw,
 			y: Math.random() * this.ch,
 			z: Math.pow(Math.random(), 1.6),
 			ph: Math.random() * 100
 		}));
-		const nb = Math.round(16 * d);
+		const nb = Math.round(16 * MAX_SNOWFALL);
 		this.bokeh = Array.from({ length: nb }, () => this.newBokeh(true));
 	}
 
@@ -289,6 +476,17 @@ export class Game {
 		const s = this.s;
 		const w = this.world;
 		this.t += dt;
+		this.pumpPaint();
+		if (this.to) {
+			this.fade = Math.min(1, this.fade + dt / FADE_SECONDS);
+			this.fadeE = smooth(this.fade);
+			mixLook(this.lookFrom, this.lookTo, this.fadeE, this.look);
+			this.applyLook();
+			if (this.fade >= 1) {
+				this.from = this.to;
+				this.to = null;
+			}
+		}
 
 		const down = s.downT >= 0;
 		let throttle = 0;
@@ -458,7 +656,7 @@ export class Game {
 		const sk = this.skeleton();
 		if (this.prevFeet) {
 			const tc = this.tctx;
-			tc.strokeStyle = w.palette.trail;
+			tc.strokeStyle = 'rgba(255,255,255,0.8)'; // brightness is applied per climate when drawn
 			tc.lineWidth = 1;
 			for (let i = 0; i < 2; i++) {
 				const a = this.prevFeet[i];
@@ -534,7 +732,7 @@ export class Game {
 		const cdy = this.oy - prevOy;
 
 		// weather
-		const wind = w.wind;
+		const wind = this.look.wind;
 		for (const f of this.flakes) {
 			f.y += (5 + 15 * f.z) * dt - cdy * (1 + f.z * 0.4);
 			f.x += (wind * (4 + 12 * f.z) + Math.sin(this.t * 0.9 + f.ph) * 3 * f.z) * dt - cdx * (1 + f.z * 0.4);
@@ -759,8 +957,30 @@ export class Game {
 		const ctx = this.ctx;
 		const { ox, oy, cw, ch } = this;
 		ctx.globalAlpha = 1;
-		ctx.drawImage(w.bg, ox, oy, cw, ch, 0, 0, cw, ch);
+		// the old climate stays fully opaque and the new one fades in over it
+		ctx.drawImage(this.from.bg, ox, oy, cw, ch, 0, 0, cw, ch);
+		if (this.to) {
+			ctx.globalAlpha = this.fadeE;
+			ctx.drawImage(this.to.bg, ox, oy, cw, ch, 0, 0, cw, ch);
+		}
+		ctx.globalAlpha = this.look.trailAlpha;
 		ctx.drawImage(this.trail, ox, oy, cw, ch, 0, 0, cw, ch);
+		ctx.globalAlpha = 1;
+
+		// pools of lamplight on the snow
+		const lamp = this.look.lamp;
+		if (lamp > 0.01) {
+			ctx.globalCompositeOperation = 'lighter';
+			ctx.globalAlpha = lamp;
+			for (const l of w.lamps) {
+				const x = l.x - ox;
+				const y = l.y - oy;
+				if (x < -70 || y < -70 || x > cw + 70 || y > ch + 70) continue;
+				ctx.drawImage(this.poolSprite, x - 70, y - 70);
+			}
+			ctx.globalAlpha = 1;
+			ctx.globalCompositeOperation = 'source-over';
+		}
 
 		// glints twinkle on the ice
 		for (const g of w.glints) {
@@ -792,14 +1012,14 @@ export class Game {
 		// shadow (drawn opaque off-screen, then laid down once so overlaps stay even)
 		const sc = this.sctx;
 		sc.clearRect(0, 0, cw, ch);
-		this.drawSkater(sc, sk, sProj, null, w.palette.shadow);
-		sc.fillStyle = w.palette.shadow;
+		this.drawSkater(sc, sk, sProj, null, this.shadowCss);
+		sc.fillStyle = this.shadowCss;
 		for (const p of this.particles) {
 			if (p.sparkle) continue;
 			const [x, y] = sProj(p);
 			sc.fillRect(Math.round(x), Math.round(y), 1, 1);
 		}
-		ctx.globalAlpha = Math.min(0.7, w.palette.shadowAlpha * 1.25);
+		ctx.globalAlpha = Math.min(0.7, this.look.shadowAlpha * 1.25);
 		ctx.drawImage(this.shadowCanvas, 0, 0);
 		ctx.globalAlpha = 1;
 
@@ -818,22 +1038,49 @@ export class Game {
 
 		this.drawSkater(ctx, sk, vProj, this.colors);
 
-		ctx.drawImage(w.fg, ox, oy, cw, ch, 0, 0, cw, ch);
+		// lamp bulbs, under the trees so nearer branches still cover them
+		if (lamp > 0.01) {
+			for (const l of w.lamps) {
+				const x = l.x - ox;
+				const y = l.y - LAMP_H * TILT - oy;
+				if (x < -16 || y < -16 || x > cw + 16 || y > ch + 16) continue;
+				ctx.globalAlpha = lamp;
+				ctx.drawImage(this.bulbSprite, x - 16, y - 16);
+				ctx.fillStyle = '#fff2d0';
+				ctx.fillRect(Math.round(x) - 1, Math.round(y) - 2, 3, 3);
+				ctx.globalAlpha = 1;
+			}
+		}
 
-		// snow
-		for (const f of this.flakes) {
-			const a = 0.35 + f.z * 0.6;
-			ctx.fillStyle = `rgba(255,255,255,${a})`;
+		ctx.drawImage(this.from.fg, ox, oy, cw, ch, 0, 0, cw, ch);
+		if (this.to) {
+			ctx.globalAlpha = this.fadeE;
+			ctx.drawImage(this.to.fg, ox, oy, cw, ch, 0, 0, cw, ch);
+			ctx.globalAlpha = 1;
+		}
+
+		// snow: the pool is sized for a blizzard, each climate shows a share of it
+		// the last flake in the share fades with the fractional part, so snowfall eases instead of popping
+		const share = this.flakes.length * (this.look.snowfall / MAX_SNOWFALL);
+		const flakes = Math.min(this.flakes.length, Math.ceil(share));
+		ctx.fillStyle = '#fff';
+		for (let i = 0; i < flakes; i++) {
+			const f = this.flakes[i];
+			ctx.globalAlpha = (0.35 + f.z * 0.6) * (i === flakes - 1 ? share - i : 1);
 			const sz = f.z > 0.82 ? 2 : 1;
 			ctx.fillRect(Math.round(f.x), Math.round(f.y), sz, sz);
 		}
+		ctx.globalAlpha = 1;
 
 		// soft out-of-focus flakes drifting near the lens
 		const fc = this.fxCtx;
 		fc.clearRect(0, 0, this.fx.width, this.fx.height);
 		const d = this.dpr;
-		for (const b of this.bokeh) {
-			fc.globalAlpha = b.a;
+		const bShare = this.bokeh.length * (this.look.snowfall / MAX_SNOWFALL);
+		const nb = Math.min(this.bokeh.length, Math.ceil(bShare));
+		for (let i = 0; i < nb; i++) {
+			const b = this.bokeh[i];
+			fc.globalAlpha = b.a * (i === nb - 1 ? bShare - i : 1);
 			const r = b.r * d;
 			fc.drawImage(this.sprite, b.x * d - r, b.y * d - r, r * 2, r * 2);
 		}

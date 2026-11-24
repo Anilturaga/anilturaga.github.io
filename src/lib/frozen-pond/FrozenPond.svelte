@@ -193,9 +193,9 @@
 		}
 	}
 
-	function newPond() {
-		game?.regenerate();
-		fit();
+	function changeClimate() {
+		dismissGuide();
+		game?.nextClimate();
 		container.focus({ preventScroll: true });
 	}
 
@@ -235,13 +235,13 @@
 		<button class="ctrl corner-l absolute" onclick={exit} aria-label="Close game" title="Close (Esc)"><X size={20} /></button>
 		<div class="corner-r absolute flex gap-2">
 			<button class="ctrl" onclick={showGuide} aria-label="Show controls" title="Controls"><CircleHelp size={18} /></button>
-			<button class="ctrl" onclick={newPond} aria-label="New pond" title="New pond"><Shuffle size={18} /></button>
+			<button class="ctrl" onclick={changeClimate} aria-label="Change climate" title="Change climate"><Shuffle size={18} /></button>
 			<button class="ctrl" onclick={toggleMute} aria-label={muted ? 'Unmute' : 'Mute'} title={muted ? 'Unmute' : 'Mute'}>
 				{#if muted}<VolumeX size={18} />{:else}<Volume2 size={18} />{/if}
 			</button>
 		</div>
 		<div class="seed pointer-events-none absolute font-mono text-[11px] tracking-wide text-white/70">
-			{info.palette} · #{info.seed.toString(36)}
+			{info.palette}
 		</div>
 		<div class="guide pointer-events-none absolute inset-x-0 flex justify-center text-white" class:show={showHint} aria-hidden="true">
 			{#if isTouch}
