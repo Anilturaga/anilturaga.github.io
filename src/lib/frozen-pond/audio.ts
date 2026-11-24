@@ -277,31 +277,6 @@ export class PondAudio {
 		this.skidGain.gain.setTargetAtTime(0.32 * skid, now, 0.04);
 	}
 
-	/** A soft gust for a change of climate. */
-	whoosh() {
-		const ctx = this.ctx;
-		if (!ctx || ctx.state !== 'running') return;
-		const t = ctx.currentTime;
-		const src = ctx.createBufferSource();
-		src.buffer = this.noise;
-		const f = ctx.createBiquadFilter();
-		f.type = 'bandpass';
-		f.Q.value = 0.8;
-		f.frequency.setValueAtTime(350, t);
-		f.frequency.exponentialRampToValueAtTime(1800, t + 0.55);
-		f.frequency.exponentialRampToValueAtTime(600, t + 1.1);
-		const g = ctx.createGain();
-		g.gain.setValueAtTime(0.0001, t);
-		g.gain.exponentialRampToValueAtTime(0.09, t + 0.35);
-		g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
-		src.connect(f).connect(g).connect(this.sfx);
-		const wet = ctx.createGain();
-		wet.gain.value = 0.4;
-		g.connect(wet).connect(this.send);
-		src.start(t, Math.random() * 2);
-		src.stop(t + 1.25);
-	}
-
 	stroke() {
 		this.burst(0.14, 4200, 'highpass', 0.035);
 	}

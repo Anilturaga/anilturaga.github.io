@@ -222,7 +222,6 @@ export class Game {
 	/** the wipe's direction across the screen, and a phase for its wavy edge */
 	private wipe = { dx: 1, dy: 0, ph: 0 };
 	private wipePath: Path2D | null = null;
-	private wipeEdge: Path2D | null = null;
 	/** set while the player is in the game (vs. looking at the thumbnail) */
 	playing = false;
 	private mixes: Painted[] = [];
@@ -331,7 +330,6 @@ export class Game {
 			this.fade = this.fadeE = 0;
 			const a = (Math.random() < 0.5 ? 0 : Math.PI) + (Math.random() - 0.5) * 0.9;
 			this.wipe = { dx: Math.cos(a), dy: Math.sin(a), ph: Math.random() * 100 };
-			this.audio.whoosh();
 		}
 		this.lookFrom = { ...this.look, ambient: [...this.look.ambient], shadow: [...this.look.shadow] };
 		this.lookTo = lookOf(PALETTES[idx]);
@@ -380,8 +378,8 @@ export class Game {
 	}
 
 	/**
-	 * The region the new climate has reached: everything behind a soft, wavy
-	 * front sweeping across the screen. Built once per frame while wiping.
+	 * The region the new climate has reached: everything behind a front with
+	 * one gentle wave in it, sweeping across the screen. Built once per frame while wiping.
 	 */
 	private buildWipe() {
 		const { dx, dy, ph } = this.wipe;
@@ -396,25 +394,21 @@ export class Game {
 		// extend well past the screen so a bake covers the whole world
 		const far = 2000;
 		const path = new Path2D();
-		const edge = new Path2D();
 		let first = true;
-		for (let q = -far; q <= far; q += q > -400 && q < 1200 ? 5 : 100) {
-			const off = 7 * Math.sin(q * 0.045 + ph) + 3 * Math.sin(q * 0.13 + ph * 2) + 1.5 * Math.sin(q * 0.31 + ph);
+		for (let q = -far; q <= far; q += q > -400 && q < 1200 ? 6 : 100) {
+			const off = 10 * Math.sin(q * 0.025 + ph); // one gentle wave
 			const x = dx * (front + off) + px * q;
 			const y = dy * (front + off) + py * q;
 			if (first) {
 				path.moveTo(x, y);
-				edge.moveTo(x, y);
 				first = false;
 			} else {
 				path.lineTo(x, y);
-				edge.lineTo(x, y);
 			}
 		}
 		path.lineTo(dx * -far + px * far, dy * -far + py * far);
 		path.lineTo(dx * -far - px * far, dy * -far - py * far);
 		path.closePath();
-		this.wipeEdge = edge;
 		return path;
 	}
 
@@ -543,7 +537,7 @@ export class Game {
 			if (this.fade >= 1) {
 				this.from = this.to;
 				this.to = null;
-				this.wipePath = this.wipeEdge = null;
+				this.wipePath = null;
 			}
 		}
 
@@ -1124,18 +1118,6 @@ export class Game {
 			ctx.clip(this.wipePath);
 			ctx.drawImage(this.to.fg, ox, oy, cw, ch, 0, 0, cw, ch);
 			ctx.restore();
-			// a bright, glittering front of fresh snow
-			if (this.wipeEdge) {
-				ctx.strokeStyle = '#fff';
-				ctx.lineJoin = 'round';
-				ctx.globalAlpha = 0.18;
-				ctx.lineWidth = 4;
-				ctx.stroke(this.wipeEdge);
-				ctx.globalAlpha = 0.75;
-				ctx.lineWidth = 1;
-				ctx.stroke(this.wipeEdge);
-				ctx.globalAlpha = 1;
-			}
 		}
 
 		// snow: the pool is sized for a blizzard, each climate shows a share of it
