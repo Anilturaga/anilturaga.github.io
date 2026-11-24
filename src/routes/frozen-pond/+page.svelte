@@ -48,19 +48,6 @@
 				no two are the same. Works best with headphones on.
 			</p>
 
-			<h2 class="pt-4 text-2xl font-bold">Controls</h2>
-			<ul class="list-inside list-disc space-y-2">
-				<li>
-					<b>Desktop:</b> hold the mouse where you want to go, or use the arrow keys / WASD. Space does
-					a spin. Esc leaves.
-				</li>
-				<li><b>Phone:</b> hold and drag toward where you want to go. Double-tap to spin.</li>
-				<li>Let go to glide. The shuffle button gives you a new pond.</li>
-				<li>
-					Turn too hard at full speed or crash into the bank and you will fall.
-				</li>
-			</ul>
-
 			<h2 class="pt-4 text-2xl font-bold">How it's made</h2>
 			<p>
 				There are no image or audio files. Each pond starts from a random seed, and everything is
