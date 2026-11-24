@@ -38,52 +38,12 @@
 			<FrozenPond />
 
 			<p>
-				I came across <a
+				<a
 					class="link"
 					href="https://x.com/trq212/status/2125156290494353663"
 					target="_blank"
-					rel="noopener noreferrer">this post by Thariq</a
-				> of a skater gliding across a frozen pond with long tree shadows on the ice and snow falling.
-				I wanted to actually skate on it, so I built one. Every pond is generated from a random seed, so
-				no two are the same. Works best with headphones on.
-			</p>
-
-			<h2 class="pt-4 text-2xl font-bold">How it's made</h2>
-			<p>
-				There are no image or audio files. Each pond starts from a random seed, and everything is
-				derived from it:
-			</p>
-			<ul class="list-inside list-disc space-y-2">
-				<li>
-					<b>The pond</b> is an ellipse bent by a handful of sine harmonics, which gives a signed distance
-					to the shore. That one function shades the ice, drifts snow against the bank and keeps the skater
-					on the ice.
-				</li>
-				<li>
-					<b>The ice and snow</b> are layers of value noise. Streaks are stretched along the wind direction,
-					with cracks, frozen bubbles and old scratches drawn on top. The whole layer then gets ordered dithering
-					for a soft printed-pixel texture.
-				</li>
-				<li>
-					<b>Trees</b> are grown as 3D branch skeletons: broadleaf trees with fractal twig crowns, spruces
-					built from drooping whorls of needled branches, and thin shrubs. The same branches are drawn twice:
-					once through a slightly tilted camera, and once projected along a low sun for the long shadows across
-					the ice.
-				</li>
-				<li>
-					<b>The skater</b> is a 3D stick skeleton posed procedurally. Pushing strides, gliding, banking into
-					turns, spinning and falling are blended together. The blades only grip sideways, so gentle turns carve
-					and keep your speed, while sharp ones skid, throw up spray and can take you off your feet.
-				</li>
-				<li>
-					<b>The music</b> is synthesised live with the Web Audio API: a slow I–vi–IV–V pad, sparse FM bells
-					wandering a pentatonic scale, wind, and blade hiss that follows your speed. The bells get more frequent
-					the faster you skate, and each pond picks its own key.
-				</li>
-			</ul>
-			<p>
-				There are four lighting moods: dusk, morning, mist and moonlight. Shuffle a few times to find
-				the one you like.
+					rel="noopener noreferrer">Thariq's post on X</a
+				>
 			</p>
 		</div>
 	</article>
