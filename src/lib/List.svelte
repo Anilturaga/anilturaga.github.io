@@ -2,6 +2,16 @@
 	<h3 class="text-2xl font-bold">Blog Posts</h3>
 	<div class="card bg-base-200 card-md mt-4">
 		<div class="card-body">
+			<h2 class="card-title">Frozen Pond Game</h2>
+			<div class="text-base-content/70 mb-2">November 24, 2026</div>
+			<p>A procedurally generated ice skating game inspired by a clip Thariq posted.</p>
+			<div class="card-actions justify-end">
+				<a class="btn btn-primary" href="/frozen-pond">Play Now</a>
+			</div>
+		</div>
+	</div>
+	<div class="card bg-base-200 card-md mt-4">
+		<div class="card-body">
 			<h2 class="card-title">Tool call round trip from the eyes of a model</h2>
 			<div class="text-base-content/70 mb-2">July 11, 2026</div>
 			<p>
