@@ -120,7 +120,7 @@ const mixLook = (a: Look, b: Look, t: number, out: Look) => {
 	out.wind = l(a.wind, b.wind);
 };
 
-const WIPE_SECONDS = 1.1;
+const WIPE_SECONDS = 0.5;
 const MAX_SNOWFALL = 1.6;
 // climates are painted while you're still reading the post; once you're playing
 // only a sliver of each frame goes to it, so it never competes with the audio
@@ -219,8 +219,8 @@ export class Game {
 	private to: Painted | null = null;
 	private fade = 1;
 	private fadeE = 1;
-	/** the wipe's direction across the screen, and a phase for its wavy edge */
-	private wipe = { dx: 1, dy: 0, ph: 0 };
+	/** the wipe's direction across the screen */
+	private wipe = { dx: 1, dy: 0 };
 	private wipePath: Path2D | null = null;
 	/** set while the player is in the game (vs. looking at the thumbnail) */
 	playing = false;
@@ -329,7 +329,7 @@ export class Game {
 			this.to = target;
 			this.fade = this.fadeE = 0;
 			const a = (Math.random() < 0.5 ? 0 : Math.PI) + (Math.random() - 0.5) * 0.9;
-			this.wipe = { dx: Math.cos(a), dy: Math.sin(a), ph: Math.random() * 100 };
+			this.wipe = { dx: Math.cos(a), dy: Math.sin(a) };
 		}
 		this.lookFrom = { ...this.look, ambient: [...this.look.ambient], shadow: [...this.look.shadow] };
 		this.lookTo = lookOf(PALETTES[idx]);
@@ -378,36 +378,26 @@ export class Game {
 	}
 
 	/**
-	 * The region the new climate has reached: everything behind a front with
-	 * one gentle wave in it, sweeping across the screen. Built once per frame while wiping.
+	 * The region the new climate has reached: everything behind a straight
+	 * front sweeping across the screen.
 	 */
 	private buildWipe() {
-		const { dx, dy, ph } = this.wipe;
+		const { dx, dy } = this.wipe;
 		const px = -dy;
 		const py = dx;
 		const { cw, ch } = this;
 		// how far the front has to travel to cross the whole screen
 		const proj = [0, cw * dx, ch * dy, cw * dx + ch * dy];
-		const lo = Math.min(...proj) - 30;
-		const hi = Math.max(...proj) + 30;
+		const lo = Math.min(...proj);
+		const hi = Math.max(...proj);
 		const front = lo + (hi - lo) * this.fadeE;
 		// extend well past the screen so a bake covers the whole world
 		const far = 2000;
 		const path = new Path2D();
-		let first = true;
-		for (let q = -far; q <= far; q += q > -400 && q < 1200 ? 6 : 100) {
-			const off = 10 * Math.sin(q * 0.025 + ph); // one gentle wave
-			const x = dx * (front + off) + px * q;
-			const y = dy * (front + off) + py * q;
-			if (first) {
-				path.moveTo(x, y);
-				first = false;
-			} else {
-				path.lineTo(x, y);
-			}
-		}
-		path.lineTo(dx * -far + px * far, dy * -far + py * far);
+		path.moveTo(dx * front + px * far, dy * front + py * far);
+		path.lineTo(dx * front - px * far, dy * front - py * far);
 		path.lineTo(dx * -far - px * far, dy * -far - py * far);
+		path.lineTo(dx * -far + px * far, dy * -far + py * far);
 		path.closePath();
 		return path;
 	}
