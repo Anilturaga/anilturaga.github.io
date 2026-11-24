@@ -1,4 +1,5 @@
-import { mulberry32, createNoise, clamp, lerp, smoothstep, type Rand } from './noise';
+import { mulberry32, createNoise, clamp, lerp, smoothstep } from './noise';
+import { growBroadleaf, growSpruce, growShrub, drawTree, drawTreeShadow, type Tree } from './trees';
 
 export type RGB = [number, number, number];
 
@@ -173,16 +174,6 @@ export interface World {
 	musicRoot: number;
 }
 
-interface Seg {
-	x0: number;
-	y0: number;
-	z0: number;
-	x1: number;
-	y1: number;
-	z1: number;
-	w: number;
-}
-
 function makeCanvas(w: number, h: number) {
 	const c = document.createElement('canvas');
 	c.width = w;
@@ -212,44 +203,6 @@ function dither(ctx: CanvasRenderingContext2D, w: number, h: number, step: numbe
 		}
 	}
 	ctx.putImageData(img, 0, 0);
-}
-
-function growTree(rand: Rand, H: number): Seg[] {
-	const segs: Seg[] = [];
-	const branch = (
-		x: number,
-		y: number,
-		z: number,
-		dx: number,
-		dy: number,
-		dz: number,
-		len: number,
-		w: number,
-		depth: number
-	) => {
-		const x1 = x + dx * len;
-		const y1 = y + dy * len;
-		const z1 = z + dz * len;
-		segs.push({ x0: x, y0: y, z0: z, x1, y1, z1, w });
-		if (depth === 0) return;
-		const n = depth > 2 && rand() < 0.45 ? 3 : 2;
-		for (let i = 0; i < n; i++) {
-			const leader = i === 0;
-			const spread = leader ? 0.35 : 1.0;
-			let ndx = dx + (rand() - 0.5) * 2 * spread;
-			let ndy = dy + (rand() - 0.5) * 2 * spread;
-			let ndz = dz + (leader ? 0.25 : 0.05) + (rand() - 0.5) * spread * 0.8;
-			const m = Math.hypot(ndx, ndy, ndz) || 1;
-			ndx /= m;
-			ndy /= m;
-			ndz /= m;
-			const nl = len * (leader ? 0.78 : 0.6 + rand() * 0.15);
-			branch(x1, y1, z1, ndx, ndy, ndz, nl, w * (leader ? 0.72 : 0.58), depth - 1);
-		}
-	};
-	const lean = (rand() - 0.5) * 0.25;
-	branch(0, 0, 0, lean, (rand() - 0.5) * 0.2, 1, H * 0.3, 2.6 + H / 60, 6);
-	return segs;
 }
 
 export function generateWorld(seed: number): World {
@@ -389,7 +342,7 @@ export function generateWorld(seed: number): World {
 		bctx.moveTo(x, y);
 		const pts: [number, number][] = [];
 		for (let s = 0; s < steps; s++) {
-			ang += (rand() - 0.5) * 0.9;
+			ang += (rand() - 0.5) * 0.25 + (rand() < 0.08 ? (rand() - 0.5) * 1.6 : 0);
 			x += Math.cos(ang) * 3;
 			y += Math.sin(ang) * 3;
 			bctx.lineTo(x, y);
@@ -459,76 +412,44 @@ export function generateWorld(seed: number): World {
 	const VP = (x: number, y: number, z: number): [number, number] => [x, y - z * TILT];
 
 	// trees: pick spots on the banks, denser close to the water
-	type Tree =
-		| { kind: 'bare'; x: number; y: number; segs: Seg[] }
-		| { kind: 'pine'; x: number; y: number; h: number; r: number }
-		| { kind: 'bush'; x: number; y: number; segs: Seg[] };
 	const trees: Tree[] = [];
 	const taken: { x: number; y: number; r: number }[] = [];
 	const free = (x: number, y: number, r: number) =>
 		taken.every((t) => (t.x - x) ** 2 + (t.y - y) ** 2 > (t.r + r) ** 2);
 	const forest = createNoise(rand);
-	for (let tries = 0; tries < 1400 && trees.length < 80; tries++) {
+	const roll0 = rand;
+	for (let tries = 0; tries < 1600 && trees.length < 46; tries++) {
 		const x = rand() * W;
-		const y = rand() * (H + 60);
+		const y = rand() * (H + 80);
 		const d = sdf(x, y);
-		if (d < 12) continue;
-		const nearness = d < 120 ? 0.95 : 0.3;
-		if (rand() > nearness) continue;
+		if (d < 10) continue;
+		if (rand() > (d < 110 ? 0.75 : 0.25)) continue;
 		const f = forest.fbm(x * 0.006, y * 0.006, 3);
-		const kindRoll = rand();
-		if (kindRoll < 0.28) {
-			if (!free(x, y, 6)) continue;
-			taken.push({ x, y, r: 6 });
-			trees.push({ kind: 'bush', x, y, segs: growTree(rand, 14 + rand() * 10) });
-		} else if (f > 0.55) {
-			if (!free(x, y, 14)) continue;
-			taken.push({ x, y, r: 14 });
-			trees.push({ kind: 'pine', x, y, h: 40 + rand() * 50, r: 9 + rand() * 6 });
+		// keep trees on the near (south) bank shorter so they don't hide the ice
+		const southBank = y > pond.cy && d < 90;
+		if (southBank && d < 28 && roll0() > 0.3) continue;
+		const south = southBank ? 0.5 : 1;
+		const roll = rand();
+		if (roll < 0.25 && d < 70) {
+			if (!free(x, y, 5)) continue;
+			taken.push({ x, y, r: 5 });
+			const h = 10 + rand() * 9;
+			trees.push({ kind: 'shrub', x, y, h, segs: growShrub(rand, h) });
+		} else if (f > 0.56) {
+			if (!free(x, y, 11)) continue;
+			taken.push({ x, y, r: 11 });
+			const h = (55 + rand() * 60) * south;
+			trees.push({ kind: 'spruce', x, y, h, segs: growSpruce(rand, h, h * (0.2 + rand() * 0.05)) });
 		} else {
-			if (!free(x, y, 18)) continue;
-			taken.push({ x, y, r: 18 });
-			// keep trees on the near (south) bank modest so they don't hide the ice
-			const south = y > pond.cy && d < 80 ? 0.6 : 1;
-			trees.push({ kind: 'bare', x, y, segs: growTree(rand, (55 + rand() * 75) * south) });
+			if (!free(x, y, 16)) continue;
+			taken.push({ x, y, r: 16 });
+			const h = (95 + rand() * 80) * south;
+			trees.push({ kind: 'broadleaf', x, y, h, segs: growBroadleaf(rand, h) });
 		}
 	}
 
 	// tree shadows
-	for (const t of trees) {
-		if (t.kind === 'pine') {
-			const px = -sun.y;
-			const py = sun.x;
-			sctx.beginPath();
-			const layers = 7;
-			const pts: [number, number][] = [];
-			for (let i = 0; i <= layers; i++) {
-				const z = (i / layers) * t.h;
-				const w = t.r * (1 - i / layers) * (i % 2 === 0 ? 1 : 0.7);
-				const [sx, sy] = SP(t.x, t.y, z);
-				pts.push([sx + px * w, sy + py * w]);
-			}
-			for (let i = layers; i >= 0; i--) {
-				const z = (i / layers) * t.h;
-				const w = t.r * (1 - i / layers) * (i % 2 === 0 ? 1 : 0.7);
-				const [sx, sy] = SP(t.x, t.y, z);
-				pts.push([sx - px * w, sy - py * w]);
-			}
-			sctx.moveTo(pts[0][0], pts[0][1]);
-			for (const p of pts) sctx.lineTo(p[0], p[1]);
-			sctx.fill();
-		} else {
-			for (const s of t.segs) {
-				const [ax, ay] = SP(t.x + s.x0, t.y + s.y0, s.z0);
-				const [bx, by] = SP(t.x + s.x1, t.y + s.y1, s.z1);
-				sctx.lineWidth = Math.max(1, s.w * 1.1);
-				sctx.beginPath();
-				sctx.moveTo(ax, ay);
-				sctx.lineTo(bx, by);
-				sctx.stroke();
-			}
-		}
-	}
+	for (const t of trees) drawTreeShadow(sctx, t, SP);
 
 	// reeds poking through the snow near the water
 	const reeds: { x: number; y: number; tx: number; ty: number; h: number; c: string }[] = [];
@@ -714,6 +635,10 @@ export function generateWorld(seed: number): World {
 		bctx.moveTo(r.x, r.y);
 		bctx.lineTo(tx, ty);
 		bctx.stroke();
+		if (r.h > 8 && (r.x * 7 + r.y * 13) % 3 < 1.2) {
+			bctx.fillStyle = P.woodDark;
+			bctx.fillRect(Math.round(tx), Math.round(ty), 1, 2);
+		}
 	}
 
 	dither(bctx, W, H, 9);
@@ -808,60 +733,30 @@ export function generateWorld(seed: number): World {
 
 	// trees, back to front
 	trees.sort((a, b) => a.y - b.y);
+	const hex = (h: string): RGB => {
+		const n = parseInt(h.slice(1), 16);
+		return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+	};
+	const blend = (h: string, c: RGB, t: number) => {
+		const a = hex(h);
+		return rgb([lerp(a[0], c[0], t), lerp(a[1], c[1], t), lerp(a[2], c[2], t)]);
+	};
+	const treeColors = {
+		bark: P.bark,
+		twig: blend(P.bark, P.snowShade, 0.25),
+		needle: P.pine,
+		needleLight: P.pineLight,
+		snow: P.barkSnow,
+		shrub: blend(P.wood, hex(P.bark), 0.4),
+		litSide: sun.x > 0 ? -1 : 1
+	};
 	for (const t of trees) {
-		// a soft snow mound at the base
-		fctx.fillStyle = rgb(P.snowShade, 0.7);
+		// a soft snow hollow at the base
+		fctx.fillStyle = rgb(P.snowShade, 0.6);
 		fctx.beginPath();
-		fctx.ellipse(t.x, t.y, t.kind === 'pine' ? t.r * 0.9 : 4, 1.6, 0, 0, Math.PI * 2);
+		fctx.ellipse(t.x, t.y + 0.5, t.kind === 'spruce' ? 5 : 3.5, 1.4, 0, 0, Math.PI * 2);
 		fctx.fill();
-		if (t.kind === 'pine') {
-			const layers = 6;
-			for (let i = 0; i < layers; i++) {
-				const z = t.h * (0.12 + (i / layers) * 0.85);
-				const r = t.r * (1 - i / (layers + 0.5)) + 1;
-				const [cx, cy] = VP(t.x, t.y, z);
-				fctx.fillStyle = P.pine;
-				fctx.beginPath();
-				fctx.ellipse(cx, cy, r, r * 0.62, 0, 0, Math.PI * 2);
-				fctx.fill();
-				fctx.fillStyle = P.pineLight;
-				fctx.beginPath();
-				fctx.ellipse(cx - r * 0.15, cy - r * 0.12, r * 0.78, r * 0.45, 0, 0, Math.PI * 2);
-				fctx.fill();
-				fctx.fillStyle = P.barkSnow;
-				fctx.beginPath();
-				fctx.ellipse(cx - r * 0.2, cy - r * 0.25, r * 0.55, r * 0.26, 0, 0, Math.PI * 2);
-				fctx.fill();
-			}
-			const [tx, ty] = VP(t.x, t.y, t.h);
-			fctx.fillStyle = P.pine;
-			fctx.fillRect(Math.round(tx), Math.round(ty), 1, 2);
-		} else {
-			const segs = [...t.segs].sort((a, b) => b.w - a.w);
-			for (const s of segs) {
-				const [ax, ay] = VP(t.x + s.x0, t.y + s.y0, s.z0);
-				const [bx, by] = VP(t.x + s.x1, t.y + s.y1, s.z1);
-				fctx.strokeStyle = P.bark;
-				fctx.globalAlpha = s.w < 0.8 ? 0.75 : 1;
-				fctx.lineWidth = Math.max(1, s.w);
-				fctx.beginPath();
-				fctx.moveTo(ax, ay);
-				fctx.lineTo(bx, by);
-				fctx.stroke();
-				// snow resting on the flatter, thicker limbs
-				const flat = 1 - Math.abs(s.z1 - s.z0) / (Math.hypot(s.x1 - s.x0, s.y1 - s.y0, s.z1 - s.z0) || 1);
-				if (s.w > 0.7 && flat > 0.35) {
-					fctx.strokeStyle = P.barkSnow;
-					fctx.lineWidth = 1;
-					fctx.globalAlpha = 0.85;
-					fctx.beginPath();
-					fctx.moveTo(ax, ay - 0.8);
-					fctx.lineTo(bx, by - 0.8);
-					fctx.stroke();
-				}
-			}
-			fctx.globalAlpha = 1;
-		}
+		drawTree(fctx, t, VP, treeColors, rand);
 	}
 
 	// sparkling points on the ice
@@ -891,7 +786,7 @@ export function generateWorld(seed: number): World {
 			const dx = pond.cx - b.x;
 			const dy = pond.cy - b.y;
 			const m = Math.hypot(dx, dy) || 1;
-			const p = { x: b.x + (dx / m) * 60, y: b.y + (dy / m) * 60 };
+			const p = { x: b.x + (dx / m) * 105, y: b.y + (dy / m) * 105 };
 			return sdf(p.x, p.y) < -20 ? p : { x: pond.cx, y: pond.cy };
 		})(),
 		musicRoot: roots[Math.floor(rand() * roots.length)]
