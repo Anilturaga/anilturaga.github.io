@@ -2,9 +2,9 @@
 	import FrozenPond from '$lib/frozen-pond/FrozenPond.svelte';
 
 	const post = {
-		title: 'Frozen Pond',
+		title: 'Frozen Pond Game',
 		description:
-			'A small skating game where every pond, tree, shadow and note of music is generated from a seed.',
+			'Thariq shared a little clip of a skater gliding across a frozen pond at dusk, with long tree shadows on the ice and snow drifting down. I wanted to play it, so I built one where every pond, tree and note of music is generated fresh.',
 		date: '2026-11-24',
 		author: 'Anil Turaga'
 	};
@@ -35,24 +35,30 @@
 		<div class="divider"></div>
 
 		<div class="text-md space-y-5 leading-relaxed">
+			<FrozenPond />
+
 			<p>
-				I came across <a
+				Inspired by <a
 					class="link"
 					href="https://x.com/trq212/status/2125156290494353663"
 					target="_blank"
-					rel="noopener noreferrer">a short clip</a
-				> of someone skating across a frozen pond, with long winter shadows, falling snow and their blade
-				marks building up on the ice. I wanted to skate on it, so I built my own version. Put your
-				headphones on.
+					rel="noopener noreferrer">Thariq's post on X</a
+				>. Hit play, put your headphones on and skate around for a bit.
 			</p>
 
-			<FrozenPond />
-
-			<p class="text-base-content/70 text-sm">
-				Hold the mouse (or your finger) where you want to go and the skater pushes off toward it. Let
-				go to glide. Arrow keys or WASD work too. Space, a double-click or a double-tap does a spin.
-				The shuffle button gives you a new pond.
-			</p>
+			<h2 class="pt-4 text-2xl font-bold">Controls</h2>
+			<ul class="list-inside list-disc space-y-2">
+				<li>
+					<b>Desktop:</b> hold the mouse where you want to go, or use the arrow keys / WASD. Space does
+					a spin. Esc leaves.
+				</li>
+				<li><b>Phone:</b> hold and drag toward where you want to go. Double-tap to spin.</li>
+				<li>Let go to glide. The shuffle button gives you a new pond.</li>
+				<li>
+					Skates don't forgive everything. Yank a hard turn at full speed or slam into the bank and
+					you'll end up on the ice for a moment.
+				</li>
+			</ul>
 
 			<h2 class="pt-4 text-2xl font-bold">How it's made</h2>
 			<p>
@@ -67,24 +73,24 @@
 				</li>
 				<li>
 					<b>The ice and snow</b> are layers of value noise. Streaks are stretched along the wind direction,
-					with cracks, frozen bubbles and old scratches drawn on top. The whole layer then gets ordered dithering,
-					which gives it that soft printed-pixel texture.
+					with cracks, frozen bubbles and old scratches drawn on top. The whole layer then gets ordered dithering
+					for a soft printed-pixel texture.
 				</li>
 				<li>
-					<b>Trees</b> grow as small recursive 3D branch structures. The same branches are drawn twice:
-					once seen from a slightly tilted camera, and once projected along a low sun to make the long shadows
-					across the ice. Pines, bushes, reeds, the fence, the bench and the lamps work the same way.
+					<b>Trees</b> are grown as 3D branch skeletons: broadleaf trees with fractal twig crowns, spruces
+					built from drooping whorls of needled branches, and thin shrubs. The same branches are drawn twice:
+					once through a slightly tilted camera, and once projected along a low sun for the long shadows across
+					the ice.
 				</li>
 				<li>
 					<b>The skater</b> is a 3D stick skeleton posed procedurally. Pushing strides, gliding, banking into
-					turns and spinning are blended together. The blades only grip sideways, so gentle turns carve and
-					keep your speed, while sharp ones skid and throw up spray. Each blade leaves a mark that slowly
-					fades under fresh snow.
+					turns, spinning and falling are blended together. The blades only grip sideways, so gentle turns carve
+					and keep your speed, while sharp ones skid, throw up spray and can take you off your feet.
 				</li>
 				<li>
 					<b>The music</b> is synthesised live with the Web Audio API: a slow I–vi–IV–V pad, sparse FM bells
-					wandering a pentatonic scale, wind, and blade hiss that follows your speed. The bells get more
-					frequent the faster you skate, and each pond picks its own key.
+					wandering a pentatonic scale, wind, and blade hiss that follows your speed. The bells get more frequent
+					the faster you skate, and each pond picks its own key.
 				</li>
 			</ul>
 			<p>

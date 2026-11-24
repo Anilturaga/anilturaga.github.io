@@ -50,6 +50,7 @@ const MAX_SPEED = 125;
 const TURN_RATE = 3.6;
 const SIZE = 1.35; // skater scale in world pixels
 
+const smooth = (t: number) => t * t * (3 - 2 * t);
 const wrapAngle = (a: number) => {
 	while (a > Math.PI) a -= Math.PI * 2;
 	while (a < -Math.PI) a += Math.PI * 2;
@@ -99,8 +100,17 @@ export class Game {
 		pushW: 0,
 		glideW: 0,
 		spinW: 0,
-		bank: 0
+		bank: 0,
+		/** 0 upright … 1 sprawled on the ice */
+		fall: 0,
+		/** seconds since the fall began, -1 while upright */
+		downT: -1,
+		fallDir: 0,
+		tumble: 0,
+		/** builds up while skidding too hard; past a threshold you go down */
+		imb: 0
 	};
+	private prevBody: { x: number; y: number } | null = null;
 	private prevFeet: P3[] | null = null;
 	private particles: Particle[] = [];
 	private flakes: Flake[] = [];
@@ -144,8 +154,12 @@ export class Game {
 			spinVel: 0,
 			pushW: 0,
 			glideW: 0,
-			spinW: 0
+			spinW: 0,
+			fall: 0,
+			downT: -1,
+			imb: 0
 		});
+		this.prevBody = null;
 		this.prevFeet = null;
 		this.particles = [];
 		this.cam = { x: w.start.x, y: w.start.y - 20 };
@@ -225,7 +239,7 @@ export class Game {
 
 	spin() {
 		const s = this.s;
-		if (s.spinW > 0.35) return;
+		if (s.spinW > 0.35 || s.downT >= 0) return;
 		s.spinVel = (s.bank >= 0 ? 1 : -1) * 16;
 		this.audio.spin();
 		for (let i = 0; i < 24; i++) {
@@ -276,11 +290,12 @@ export class Game {
 		const w = this.world;
 		this.t += dt;
 
+		const down = s.downT >= 0;
 		let throttle = 0;
 		let desired: number | null = null;
-		const brake = this.keys.has('down');
-		if (this.keys.has('up')) throttle = 1;
-		if (this.pointer.down) {
+		const brake = !down && this.keys.has('down');
+		if (!down && this.keys.has('up')) throttle = 1;
+		if (!down && this.pointer.down) {
 			const px = this.ox + (this.pointer.x * this.dpr) / this.scale;
 			const py = this.oy + (this.pointer.y * this.dpr) / this.scale + 4; // aim from the body, not the blades
 			const dx = px - s.x;
@@ -297,7 +312,7 @@ export class Game {
 			s.heading += s.spinVel * dt;
 			s.spinVel *= Math.exp(-1.4 * dt);
 			if (Math.abs(s.spinVel) < 0.6) s.spinVel = 0;
-		} else {
+		} else if (!down) {
 			if (desired !== null) {
 				const diff = wrapAngle(desired - s.heading);
 				s.heading += clamp(diff, -TURN_RATE * dt, TURN_RATE * dt);
@@ -316,38 +331,54 @@ export class Game {
 		let vl = s.vx * rx + s.vy * ry;
 		const speed0 = Math.hypot(s.vx, s.vy);
 
-		// blades grip sideways; a gentle carve keeps most of the speed, a sharp one skids
-		const grip = spinning ? 0.4 : 7;
-		const vl2 = vl * Math.exp(-grip * dt);
-		const lost = vl * vl - vl2 * vl2;
-		const slip = Math.atan2(Math.abs(vl), Math.abs(vf) + 1e-3);
-		const carve = spinning ? 0.98 : clamp(1 - slip / 1.1, 0, 1) * 0.94;
-		vf = (vf >= 0 ? 1 : -1) * Math.sqrt(vf * vf + lost * carve);
-		vl = vl2;
-		let skid = Math.sqrt(Math.max(0, lost * (1 - carve)));
+		let skid = 0;
+		const pushing = throttle > 0 && !spinning && !down;
+		if (down) {
+			// sliding on your side: no grip, lots of friction
+			const k = Math.exp(-1.6 * dt);
+			s.vx *= k;
+			s.vy *= k;
+			skid = speed0 * 0.04;
+		} else {
+			// blades grip sideways; a gentle carve keeps most of the speed, a sharp one skids
+			const grip = spinning ? 0.4 : 7;
+			const vl2 = vl * Math.exp(-grip * dt);
+			const lost = vl * vl - vl2 * vl2;
+			const slip = Math.atan2(Math.abs(vl), Math.abs(vf) + 1e-3);
+			const carve = spinning ? 0.98 : clamp(1 - slip / 1.1, 0, 1) * 0.94;
+			vf = (vf >= 0 ? 1 : -1) * Math.sqrt(vf * vf + lost * carve);
+			vl = vl2;
+			skid = Math.sqrt(Math.max(0, lost * (1 - carve)));
 
-		vf *= Math.exp(-0.09 * dt);
-		if (brake) {
-			const before = vf;
-			vf *= Math.exp(-2.4 * dt);
-			skid += Math.abs(before - vf) * 0.6;
-		}
-
-		// pushing strides
-		const pushing = throttle > 0 && !spinning;
-		if (pushing) {
-			const prevSin = Math.sin(s.phase);
-			s.phase += dt * (4.6 + Math.max(vf, 0) * 0.018);
-			if (Math.sign(Math.sin(s.phase)) !== Math.sign(prevSin)) this.audio.stroke();
-			const target = MAX_SPEED * throttle;
-			if (vf < target) {
-				const stroke = 0.45 + 0.55 * Math.abs(Math.sin(s.phase));
-				vf += throttle * 110 * stroke * dt;
+			vf *= Math.exp(-0.09 * dt);
+			if (brake) {
+				const before = vf;
+				vf *= Math.exp(-2.4 * dt);
+				skid += Math.abs(before - vf) * 0.6;
 			}
-		}
 
-		s.vx = fx * vf + rx * vl;
-		s.vy = fy * vf + ry * vl;
+			// pushing strides
+			if (pushing) {
+				const prevSin = Math.sin(s.phase);
+				s.phase += dt * (4.6 + Math.max(vf, 0) * 0.018);
+				if (Math.sign(Math.sin(s.phase)) !== Math.sign(prevSin)) this.audio.stroke();
+				const target = MAX_SPEED * throttle;
+				if (vf < target) {
+					const stroke = 0.45 + 0.55 * Math.abs(Math.sin(s.phase));
+					vf += throttle * 110 * stroke * dt;
+				}
+			}
+
+			// lose your balance if you whip the blades around too far, too fast:
+			// a quarter turn at full speed is fine, a reversal or frantic zigzag is not
+			const hard = spinning ? 0 : clamp((speed0 - 40) / 50, 0, 1);
+			s.imb += (Math.abs(angVel) + Math.max(0, slip - 0.95) * 3) * hard * dt;
+			s.imb *= Math.exp(-0.6 * dt);
+
+			s.vx = fx * vf + rx * vl;
+			s.vy = fy * vf + ry * vl;
+			if (s.imb > 1.8) this.fall(Math.atan2(s.vy, s.vx));
+		}
 		let nx = s.x + s.vx * dt;
 		let ny = s.y + s.vy * dt;
 
@@ -369,6 +400,7 @@ export class Game {
 				s.vy -= gy * vn * 1.45;
 				s.vx *= 0.82;
 				s.vy *= 0.82;
+				if (vn > 75 && s.downT < 0) this.fall(Math.atan2(gy, gx));
 				if (vn > 20) {
 					this.audio.bump(clamp(vn / 110, 0.15, 1));
 					this.spray(Math.round(vn / 4), -gx, -gy);
@@ -384,6 +416,36 @@ export class Game {
 		s.glideW = approach(s.glideW, speed > 14 ? 1 : 0, 3, dt);
 		s.spinW = approach(s.spinW, spinning ? 1 : 0, 8, dt);
 		s.bank = approach(s.bank, spinning ? s.bank : clamp(angVel * sp01 * 0.45, -1, 1), 6, dt);
+		if (s.downT >= 0) {
+			s.downT += dt;
+			const T = s.downT;
+			s.fallDir += s.tumble * sp01 * dt;
+			if (T < 0.32) s.fall = Math.pow(T / 0.32, 2);
+			else if (T < 1.9) s.fall = 1;
+			else if (T < 2.6) s.fall = 1 - smooth((T - 1.9) / 0.7);
+			else {
+				s.fall = 0;
+				s.downT = -1;
+			}
+			// once flat, face the way we'll stand back up
+			if (s.fall > 0.95) s.heading = s.fallDir;
+			// the body leaves a scuff where it slides
+			if (this.prevBody && speed > 12 && s.fall > 0.6) {
+				const tc = this.tctx;
+				const bx = s.x + Math.cos(s.fallDir) * 2 * SIZE;
+				const by = s.y + Math.sin(s.fallDir) * 2 * SIZE;
+				tc.strokeStyle = 'rgba(255,255,255,0.16)';
+				tc.lineWidth = 3;
+				tc.beginPath();
+				tc.moveTo(this.prevBody.x, this.prevBody.y);
+				tc.lineTo(bx, by);
+				tc.stroke();
+			}
+		}
+		this.prevBody = {
+			x: s.x + Math.cos(s.fallDir) * 2 * SIZE,
+			y: s.y + Math.sin(s.fallDir) * 2 * SIZE
+		};
 		if (!pushing) s.phase = approach(s.phase, Math.round(s.phase / Math.PI) * Math.PI, 2, dt);
 
 		if (skid > 0.6 && speed0 > 10) {
@@ -497,6 +559,18 @@ export class Game {
 		}
 	}
 
+	private fall(dir: number) {
+		const s = this.s;
+		if (s.downT >= 0) return;
+		s.downT = 0;
+		s.fallDir = dir;
+		s.tumble = (Math.random() - 0.5) * 3;
+		s.spinVel = 0;
+		s.imb = 0;
+		this.audio.fall();
+		this.spray(28, Math.cos(dir), Math.sin(dir));
+	}
+
 	private spray(n: number, dx: number, dy: number) {
 		const s = this.s;
 		const m = Math.hypot(dx, dy) || 1;
@@ -562,6 +636,7 @@ export class Game {
 			pose([0.3, 2.9, 7.5], [-1, 5.6, 10], [-2.6 * cos, 3.4, 9], [1.2, 1.2, 11.6])
 		];
 		const head = L(2.1 * lean, bank * 2.4, 14);
+		const sk0 = { feet, knees, hips, shoulders, hands };
 		// scarf streams behind the direction of travel
 		const sp01 = clamp(speed / MAX_SPEED, 0, 1);
 		let bx = -fx;
@@ -580,6 +655,34 @@ export class Game {
 				y: neck.y + by * len + bx * flutter,
 				z: neck.z - i * (0.9 - 0.6 * sp01) * SIZE
 			});
+		}
+		if (s.fall > 0) {
+			// sprawled on the ice, laid out along the fall direction
+			const gx = Math.cos(s.fallDir);
+			const gy = Math.sin(s.fallDir);
+			const F = (a: number, b: number, z: number): P3 => ({
+				x: s.x + (gx * a - gy * b) * SIZE,
+				y: s.y + (gy * a + gx * b) * SIZE,
+				z: z * SIZE
+			});
+			const t = s.fall;
+			const blend = (p: P3, q: P3) => {
+				p.x += (q.x - p.x) * t;
+				p.y += (q.y - p.y) * t;
+				p.z += (q.z - p.z) * t;
+			};
+			const lay = {
+				feet: [F(-6.5, -2.2, 1.6), F(-6, 2.6, 0.8)],
+				knees: [F(-3.5, -1.8, 0.9), F(-3.4, 2.2, 2.2)],
+				hips: [F(-1, -1.3, 1.1), F(-1, 1.3, 1.1)],
+				shoulders: [F(3.5, -2.5, 1.2), F(3.5, 2.5, 1.2)],
+				hands: [F(7.2, -5, 0.6), F(4.5, 6.4, 0.6)]
+			};
+			for (const k of ['feet', 'knees', 'hips', 'shoulders', 'hands'] as const) {
+				sk0[k].forEach((p, i) => blend(p, lay[k][i]));
+			}
+			blend(head, F(5.8, 0.3, 1.4));
+			scarf.forEach((p, i) => blend(p, F(4.6 - i * 1.2, (i % 2 ? 0.6 : -0.4) + i * 0.3, 1.2)));
 		}
 		return { feet, knees, hips, shoulders, hands, head, scarf, f: { x: fx, y: fy } };
 	}

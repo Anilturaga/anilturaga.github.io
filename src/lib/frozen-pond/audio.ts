@@ -290,6 +290,11 @@ export class PondAudio {
 		o.stop(t + 0.35);
 	}
 
+	fall() {
+		this.bump(1);
+		this.burst(0.9, 1400, 'bandpass', 0.35);
+	}
+
 	spin() {
 		const ctx = this.ctx;
 		if (!ctx) return;
