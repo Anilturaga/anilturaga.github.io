@@ -4,7 +4,7 @@
 	const post = {
 		title: 'Frozen Pond Game',
 		description:
-			'Thariq shared a little clip of a skater gliding across a frozen pond at dusk, with long tree shadows on the ice and snow drifting down. I wanted to play it, so I built one where every pond, tree and note of music is generated fresh.',
+			'A procedurally generated ice skating game inspired by a clip Thariq posted.',
 		date: '2026-11-24',
 		author: 'Anil Turaga'
 	};
@@ -38,12 +38,14 @@
 			<FrozenPond />
 
 			<p>
-				Inspired by <a
+				I came across <a
 					class="link"
 					href="https://x.com/trq212/status/2125156290494353663"
 					target="_blank"
-					rel="noopener noreferrer">Thariq's post on X</a
-				>. Hit play, put your headphones on and skate around for a bit.
+					rel="noopener noreferrer">this post by Thariq</a
+				> of a skater gliding across a frozen pond with long tree shadows on the ice and snow falling.
+				I wanted to actually skate on it, so I built one. Every pond is generated from a random seed, so
+				no two are the same. Works best with headphones on.
 			</p>
 
 			<h2 class="pt-4 text-2xl font-bold">Controls</h2>
@@ -55,8 +57,7 @@
 				<li><b>Phone:</b> hold and drag toward where you want to go. Double-tap to spin.</li>
 				<li>Let go to glide. The shuffle button gives you a new pond.</li>
 				<li>
-					Skates don't forgive everything. Yank a hard turn at full speed or slam into the bank and
-					you'll end up on the ice for a moment.
+					Turn too hard at full speed or crash into the bank and you will fall.
 				</li>
 			</ul>
 
@@ -94,8 +95,8 @@
 				</li>
 			</ul>
 			<p>
-				There are four lighting moods (dusk, morning, mist and moonlight). Shuffle a few times to find
-				one you like.
+				There are four lighting moods: dusk, morning, mist and moonlight. Shuffle a few times to find
+				the one you like.
 			</p>
 		</div>
 	</article>

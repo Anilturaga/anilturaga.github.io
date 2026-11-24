@@ -4,10 +4,7 @@
 		<div class="card-body">
 			<h2 class="card-title">Frozen Pond Game</h2>
 			<div class="text-base-content/70 mb-2">November 24, 2026</div>
-			<p>
-				A generative winter skating game inspired by Thariq's clip: every pond, tree and note of
-				music is made fresh.
-			</p>
+			<p>A procedurally generated ice skating game inspired by a clip Thariq posted.</p>
 			<div class="card-actions justify-end">
 				<a class="btn btn-primary" href="/frozen-pond">Play Now</a>
 			</div>
